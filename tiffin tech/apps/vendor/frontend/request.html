@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscription Requests - TiffinTech</title>
+  <!-- Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Animation for actions */
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translateX(-100%); }
+    }
+    
+    .fade-out {
+      animation: fadeOut 0.5s forwards;
+    }
+    
+    /* Badge animation */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse-badge {
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between">
+        <div class="flex space-x-7">
+          <div>
+            <a href="index.html" class="flex items-center py-4">
+              <span class="font-semibold text-green-600 text-2xl">TiffinTech</span>
+            </a>
+          </div>
+          <div class="hidden md:flex items-center space-x-1">
+            <a href="index.html" class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300">Home</a>
+            <a href="browse-vendors.html" class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300">Browse</a>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-3">
+          <button id="profile-btn" class="p-2 rounded-full hover:bg-gray-200 transition duration-300">
+            <i class="fas fa-user-circle text-2xl text-green-600"></i>
+          </button>
+          <a href="vendor-dashboard.html" class="py-2 px-4 font-medium text-white bg-green-600 rounded">Dashboard</a>
+          <button id="logout-btn" class="py-2 px-4 font-medium text-gray-500 rounded hover:bg-gray-200 transition duration-300">Logout</button>
+        </div>
+        <div class="md:hidden flex items-center">
+          <button id="mobile-profile-btn" class="p-2 mr-2 rounded-full hover:bg-gray-200 transition duration-300">
+            <i class="fas fa-user-circle text-2xl text-green-600"></i>
+          </button>
+          <button class="outline-none mobile-menu-button">
+            <svg class="w-6 h-6 text-gray-500" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="hidden mobile-menu">
+      <ul class="pt-2 pb-3">
+        <li><a href="index.html" class="block pl-4 pr-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Home</a></li>
+        <li><a href="browse-vendors.html" class="block pl-4 pr-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Browse</a></li>
+        <li><a href="vendor-dashboard.html" class="block pl-4 pr-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Dashboard</a></li>
+        <li><a href="vendor-subscription-requests.html" class="block pl-4 pr-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Subscription Requests</a></li>
+        <li><button id="mobile-logout-btn" class="block w-full text-left pl-4 pr-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Dashboard Header -->
+  <header class="bg-green-600 text-white py-6">
+    <div class="max-w-6xl mx-auto px-6">
+      <!-- Top Section -->
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h1 class="text-3xl font-bold">Subscription Requests</h1>
+          <p id="vendor-welcome" class="text-green-100 mt-1">Manage customer subscription requests</p>
+        </div>
+        <button id="header-profile-btn" class="md:hidden p-2 rounded-full hover:bg-green-700 transition duration-300">
+          <i class="fas fa-user-circle text-2xl text-white"></i>
+        </button>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="flex justify-end">
+        <div class="bg-white rounded-lg shadow-sm flex overflow-hidden">
+          <a href="vendor-dashboard.html" class="px-4 py-2 text-gray-800 hover:bg-gray-100 transition duration-150">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-blue-100 rounded-full mr-4">
+            <i class="fas fa-clock text-blue-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Pending Requests</p>
+            <h3 class="text-2xl font-bold" id="pending-count">5</h3>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-green-100 rounded-full mr-4">
+            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Accepted This Month</p>
+            <h3 class="text-2xl font-bold">12</h3>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-red-100 rounded-full mr-4">
+            <i class="fas fa-times-circle text-red-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Rejected This Month</p>
+            <h3 class="text-2xl font-bold">3</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <h2 class="text-xl font-bold">Subscription Requests</h2>
+        <div class="flex flex-wrap gap-3">
+          <button class="filter-btn active bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium" data-filter="all">
+            All Requests
+          </button>
+          <button class="filter-btn bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium" data-filter="pending">
+            Pending
+          </button>
+          <button class="filter-btn bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium" data-filter="accepted">
+            Accepted
+          </button>
+          <button class="filter-btn bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium" data-filter="rejected">
+            Rejected
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Requests List -->
+    <div id="requests-container" class="space-y-4">
+      <!-- Request cards will be dynamically added here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden bg-white rounded-lg shadow-md p-8 text-center">
+      <i class="fas fa-inbox text-5xl text-gray-300 mb-4"></i>
+      <h3 class="text-xl font-semibold text-gray-700 mb-2">No Subscription Requests</h3>
+      <p class="text-gray-500">You don't have any subscription requests at the moment.</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white pt-10 pb-6 mt-12">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex flex-wrap">
+        <div class="w-full md:w-1/3 mb-6">
+          <h5 class="text-xl font-bold mb-4">TiffinTech</h5>
+          <p class="text-gray-400">Connecting Students with Local Tiffin Services</p>
+        </div>
+        <div class="w-full md:w-1/3 mb-6">
+          <h5 class="text-lg font-bold mb-4">Quick Links</h5>
+          <ul class="text-gray-400">
+            <li class="mb-2"><a href="index.html" class="hover:text-green-400">Home</a></li>
+            <li class="mb-2"><a href="browse-vendors.html" class="hover:text-green-400">Browse Vendors</a></li>
+            <li class="mb-2"><a href="vendor-registration.html" class="hover:text-green-400">Vendor Registration</a></li>
+          </ul>
+        </div>
+        <div class="w-full md:w-1/3 mb-6">
+          <h5 class="text-lg font-bold mb-4">Connect With Us</h5>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-green-400">
+              <i class="fab fa-facebook-f text-lg"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-green-400">
+              <i class="fab fa-twitter text-lg"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-green-400">
+              <i class="fab fa-instagram text-lg"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+        <p>&copy; 2023 TiffinTech. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+<script type="module">
+  import { subscriptionAPI, checkAuth, logout } from './js/api.js';
+
+  // Check authentication
+  if (!checkAuth()) {
+    window.location.href = 'login_singup.html';
+    throw new Error('Not authenticated');
+  }
+
+  let subscriptionRequests = [];
+
+  // Load subscription requests
+  async function loadSubscriptionRequests(filter = 'all') {
+    try {
+      const response = await subscriptionAPI.getRequests(filter);
+      
+      if (response.success) {
+        subscriptionRequests = response.data.requests;
+        renderRequests(filter);
+        updateStats(response.data.stats);
+      }
+    } catch (error) {
+      console.error('Error loading subscription requests:', error);
+      showNotification('Error loading requests: ' + error.message, 'error');
+    }
+  }
+
+  // Handle accept/reject actions
+  async function handleRequestAction(requestId, action) {
+    try {
+      if (action === 'accept') {
+        await subscriptionAPI.acceptRequest(requestId);
+      } else {
+        await subscriptionAPI.rejectRequest(requestId);
+      }
+      
+      // Reload requests
+      const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+      await loadSubscriptionRequests(activeFilter);
+      
+      showNotification(
+        action === 'accept' ? 'Subscription request accepted!' : 'Subscription request rejected!',
+        action === 'accept' ? 'success' : 'error'
+      );
+    } catch (error) {
+      console.error('Error processing request:', error);
+      showNotification('Error processing request: ' + error.message, 'error');
+    }
+  }
+
+  // Update your existing renderRequests function to use real data
+  function renderRequests(filter) {
+    const container = document.getElementById('requests-container');
+    const emptyState = document.getElementById('empty-state');
+    
+    container.innerHTML = '';
+    
+    let filteredRequests = subscriptionRequests;
+    if (filter !== 'all') {
+      filteredRequests = subscriptionRequests.filter(request => request.status === filter);
+    }
+    
+    if (filteredRequests.length === 0) {
+      container.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+      return;
+    }
+    
+    container.classList.remove('hidden');
+    emptyState.classList.add('hidden');
+    
+    filteredRequests.forEach(request => {
+      const requestCard = createRequestCard(request);
+      container.appendChild(requestCard);
+    });
+  }
+
+  // Update createRequestCard to use real data
+  function createRequestCard(request) {
+    // Your existing card creation logic, but using request data from API
+    // Make sure to use request.customerId.personalInfo.name, etc.
+  }
+
+  // Load data when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    loadSubscriptionRequests('all');
+    
+    // Filter button functionality (keep your existing code, just update the filter function)
+    document.querySelectorAll('.filter-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        // Your existing filter button logic
+        const filter = this.getAttribute('data-filter');
+        loadSubscriptionRequests(filter);
+      });
+    });
+  });
+</script>
+<!-- Load JavaScript Files -->
+<script src="js/config.js"></script>
+<script src="js/utils/storage.js"></script>
+<script src="js/utils/helpers.js"></script>
+<script src="js/services/auth-service.js"></script>
+<script src="js/services/vendor-service.js"></script>
+<script src="js/services/subscription-service.js"></script>
+<script src="js/services/customer-service.js"></script>
+<script src="js/services/order-service.js"></script>
+<script src="js/services/payment-service.js"></script>
+<script src="js/services/announcement-service.js"></script>
+<script src="js/services/holiday-service.js"></script>
+</body>
+</html>

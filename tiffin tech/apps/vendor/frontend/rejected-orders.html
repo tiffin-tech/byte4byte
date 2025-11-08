@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rejected Orders - Vendor Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-green-600 text-white shadow-md">
+    <div class="container mx-auto flex justify-between items-center p-4">
+      <h1 class="text-xl font-bold">Vendor Dashboard</h1>
+      <nav class="space-x-6">
+        <a href="vendor-dashboard.html" class="hover:underline">Back to Dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto p-6">
+    <h2 class="text-2xl font-bold mb-6">Rejected Orders (Today)</h2>
+
+    <!-- Table -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+      <table class="w-full text-left border-collapse">
+        <thead class="bg-green-600 text-white">
+          <tr>
+            <th class="py-3 px-4">#</th>
+            <th class="py-3 px-4">Customer Name</th>
+            <th class="py-3 px-4">Order ID</th>
+            <th class="py-3 px-4">Reason</th>
+            <th class="py-3 px-4">Date</th>
+          </tr>
+        </thead>
+        <tbody id="rejectedOrdersList" class="divide-y divide-gray-200">
+          <!-- Orders will be inserted here by JS -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-green-600 text-white text-center py-4">
+    <p>&copy; 2025 TiffinTech. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Example rejected orders (for now static, later fetch from DB)
+    const rejectedOrders = [
+      { id: 1, name: "Rohit Sharma", orderId: "ORD123",  date: "2025-09-28" },
+      { id: 2, name: "Sneha Patil", orderId: "ORD124",  date: "2025-09-28" },
+      { id: 3, name: "Aman Verma", orderId: "ORD125",  date: "2025-09-28" },
+    ];
+
+    const tbody = document.getElementById("rejectedOrdersList");
+    tbody.innerHTML = rejectedOrders.map((order, index) => `
+      <tr class="hover:bg-gray-100">
+        <td class="py-3 px-4">${index + 1}</td>
+        <td class="py-3 px-4">${order.name}</td>
+        <td class="py-3 px-4">${order.orderId}</td>
+        <td class="py-3 px-4">${order.reason}</td>
+        <td class="py-3 px-4">${order.date}</td>
+      </tr>
+    `).join("");
+  </script>
+  <!-- Load JavaScript Files -->
+<script src="js/config.js"></script>
+<script src="js/utils/storage.js"></script>
+<script src="js/utils/helpers.js"></script>
+<script src="js/services/auth-service.js"></script>
+<script src="js/services/vendor-service.js"></script>
+<script src="js/services/subscription-service.js"></script>
+<script src="js/services/customer-service.js"></script>
+<script src="js/services/order-service.js"></script>
+<script src="js/services/payment-service.js"></script>
+<script src="js/services/announcement-service.js"></script>
+<script src="js/services/holiday-service.js"></script>
+</body>
+</html>

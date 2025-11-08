@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Manage Holidays - TiffinTech</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+</head>
+<body class="bg-gray-50">
+
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-4 shadow-md">
+    <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Manage Holidays</h1>
+      <a href="vendor-dashboard.html" class="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-green-100">Back to Dashboard</a>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="mb-4 hidden">
+      <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+        <div class="flex items-center">
+          <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <p id="statusMessage" class="text-blue-800"></p>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-semibold mb-4">Select Your Holidays</h2>
+
+    <!-- Calendar -->
+    <div id="calendar" class="bg-white p-4 rounded-lg shadow-md"></div>
+
+    <!-- Selected Holidays -->
+    <div class="mt-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Your Holidays</h3>
+        <button id="syncBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+          <i class="fas fa-sync-alt mr-2"></i>Sync with Server
+        </button>
+      </div>
+      <div id="holiday-list" class="space-y-3">
+        <p class="text-gray-500 italic">Loading holidays...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="holidayModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-80 pointer-events-auto" role="dialog" aria-modal="true">
+      <h2 class="text-lg font-bold mb-2">Choose Holiday Type</h2>
+      <p id="selectedDate" class="text-gray-600 mb-4"></p>
+
+      <div class="space-y-2">
+        <button type="button" class="holiday-option w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700" data-type="All Day">All Day Holiday</button>
+        <button type="button" class="holiday-option w-full bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-600" data-type="Afternoon">Afternoon Only</button>
+        <button type="button" class="holiday-option w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700" data-type="Night">Night Only</button>
+      </div>
+
+      <div class="mt-4">
+        <button id="closeModal" type="button" class="w-full py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load JavaScript Files -->
+  <script src="js/config.js"></script>
+  <script src="js/utils/storage.js"></script>
+  <script src="js/utils/helpers.js"></script>
+  <script src="js/services/auth-service.js"></script>
+  <script src="js/services/holiday-service.js"></script>
+
+  <!-- Font Awesome for icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+      // Check authentication first
+      if (!AuthService.isAuthenticated()) {
+        showStatus('Please login first', 'error');
+        setTimeout(() => {
+          window.location.href = 'login_singup.html';
+        }, 2000);
+        return;
+      }
+
+      const calendarEl = document.getElementById('calendar');
+      const holidayListEl = document.getElementById('holiday-list');
+      const modal = document.getElementById('holidayModal');
+      const selectedDateEl = document.getElementById('selectedDate');
+      const closeModalBtn = document.getElementById('closeModal');
+      const syncBtn = document.getElementById('syncBtn');
+      const connectionStatus = document.getElementById('connectionStatus');
+      const statusMessage = document.getElementById('statusMessage');
+
+      const colors = {
+        "All Day": "#ef4444",    // red
+        "Afternoon": "#f59e0b",  // amber
+        "Night": "#2563eb"       // blue
+      };
+
+      // Holiday data structure
+      let holidays = []; // {_id, date, type, vendorId, createdAt, updatedAt}
+      let selectedDate = null;
+
+      // Show status message
+      function showStatus(message, type = 'info') {
+        statusMessage.textContent = message;
+        connectionStatus.className = 'mb-4';
+        
+        if (type === 'error') {
+          connectionStatus.classList.add('bg-red-50', 'border-red-500');
+          statusMessage.classList.add('text-red-800');
+        } else if (type === 'success') {
+          connectionStatus.classList.add('bg-green-50', 'border-green-500');
+          statusMessage.classList.add('text-green-800');
+        } else {
+          connectionStatus.classList.add('bg-blue-50', 'border-blue-500');
+          statusMessage.classList.add('text-blue-800');
+        }
+        
+        connectionStatus.classList.remove('hidden');
+        
+        // Auto-hide success/info messages after 5 seconds
+        if (type !== 'error') {
+          setTimeout(() => {
+            connectionStatus.classList.add('hidden');
+          }, 5000);
+        }
+      }
+
+      // Load holidays from backend
+      async function loadHolidaysFromBackend() {
+        try {
+          showStatus('Loading holidays...', 'info');
+          
+          const response = await HolidayService.getHolidays();
+          
+          if (response.success) {
+            holidays = response.data.map(holiday => ({
+              _id: holiday._id,
+              date: new Date(holiday.date).toISOString().split('T')[0], // Format as YYYY-MM-DD
+              type: holiday.type
+            }));
+            
+            showStatus(`Loaded ${holidays.length} holidays`, 'success');
+            renderSavedEvents();
+            updateHolidayList();
+          } else {
+            throw new Error(response.message || 'Failed to load holidays');
+          }
+        } catch (error) {
+          console.error('Error loading holidays:', error);
+          showStatus(`Error: ${error.message}`, 'error');
+          holidayListEl.innerHTML = '<p class="text-red-500">Failed to load holidays</p>';
+        }
+      }
+
+      // Initialize calendar
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        selectable: true,
+        height: 'auto',
+        dateClick(info) {
+          selectedDate = info.dateStr;
+          openModalForDate(selectedDate);
+        }
+      });
+
+      calendar.render();
+
+      // Render holidays on calendar
+      function renderSavedEvents() {
+        // Remove all existing events first
+        calendar.getEvents().forEach(event => event.remove());
+        
+        // Add holidays as events
+        holidays.forEach(holiday => {
+          calendar.addEvent({
+            id: holiday._id || holiday.date, // Use _id if available, else use date
+            title: `${holiday.type} Holiday`,
+            start: holiday.date,
+            allDay: true,
+            backgroundColor: colors[holiday.type] || "#6b7280",
+            borderColor: colors[holiday.type] || "#6b7280",
+            textColor: "white"
+          });
+        });
+      }
+
+      // Update holiday list UI
+      function updateHolidayList() {
+        holidayListEl.innerHTML = '';
+        
+        if (holidays.length === 0) {
+          holidayListEl.innerHTML = '<p class="text-gray-500 italic">No holidays set yet.</p>';
+          return;
+        }
+
+        // Sort by date
+        holidays.sort((a, b) => a.date.localeCompare(b.date));
+
+        holidays.forEach(holiday => {
+          const card = document.createElement('div');
+          card.className = "flex items-center justify-between bg-gray-50 p-3 rounded-lg shadow-sm hover:bg-gray-100 transition";
+
+          // Left: color dot + date + type
+          const left = document.createElement('div');
+          left.className = "flex items-center space-x-4";
+          
+          const dot = document.createElement('div');
+          dot.className = "flex items-center justify-center h-10 w-10 rounded-full text-white font-semibold";
+          dot.style.backgroundColor = colors[holiday.type] || '#6b7280';
+          dot.textContent = holiday.type[0]; // First letter of type
+
+          const info = document.createElement('div');
+          const dateP = document.createElement('p');
+          dateP.className = "font-medium text-gray-800";
+          dateP.textContent = formatDate(holiday.date);
+          
+          const typeP = document.createElement('p');
+          typeP.className = "text-sm text-gray-600";
+          typeP.textContent = `${holiday.type} Holiday`;
+
+          info.appendChild(dateP);
+          info.appendChild(typeP);
+          left.appendChild(dot);
+          left.appendChild(info);
+
+          // Right: remove button
+          const right = document.createElement('div');
+          
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = "px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition";
+          delBtn.innerHTML = '<i class="fas fa-trash mr-1"></i> Remove';
+          delBtn.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to remove this holiday?')) {
+              await deleteHoliday(holiday);
+            }
+          });
+
+          right.appendChild(delBtn);
+          card.appendChild(left);
+          card.appendChild(right);
+          holidayListEl.appendChild(card);
+        });
+      }
+
+      // Create new holiday
+      async function createHoliday(date, type) {
+        try {
+          showStatus('Creating holiday...', 'info');
+          
+          const holidayData = {
+            date: date + 'T00:00:00.000Z', // Format for backend
+            type: type
+          };
+
+          const response = await HolidayService.createHoliday(holidayData);
+          
+          if (response.success) {
+            // Add to local holidays array
+            holidays.push({
+              _id: response.data._id,
+              date: date,
+              type: type
+            });
+            
+            showStatus('Holiday created successfully!', 'success');
+            renderSavedEvents();
+            updateHolidayList();
+          } else {
+            throw new Error(response.message || 'Failed to create holiday');
+          }
+        } catch (error) {
+          console.error('Error creating holiday:', error);
+          showStatus(`Error: ${error.message}`, 'error');
+        }
+      }
+
+      // Delete holiday
+      async function deleteHoliday(holiday) {
+        try {
+          showStatus('Deleting holiday...', 'info');
+          
+          // If holiday has _id, delete from backend, else just remove locally
+          if (holiday._id) {
+            const response = await HolidayService.deleteHoliday(holiday._id);
+            
+            if (!response.success) {
+              throw new Error(response.message || 'Failed to delete holiday');
+            }
+          }
+          
+          // Remove from local array
+          holidays = holidays.filter(h => 
+            h._id ? h._id !== holiday._id : h.date !== holiday.date
+          );
+          
+          showStatus('Holiday deleted successfully!', 'success');
+          renderSavedEvents();
+          updateHolidayList();
+        } catch (error) {
+          console.error('Error deleting holiday:', error);
+          showStatus(`Error: ${error.message}`, 'error');
+        }
+      }
+
+      // Modal functions
+      function openModalForDate(dateStr) {
+        selectedDate = dateStr;
+        selectedDateEl.textContent = `Selected: ${formatDate(dateStr)}`;
+        modal.classList.remove('hidden');
+      }
+
+      function closeModal() {
+        modal.classList.add('hidden');
+        selectedDate = null;
+      }
+
+      // Event listeners for modal
+      modal.addEventListener('click', function (ev) {
+        const option = ev.target.closest('.holiday-option');
+        if (!option) return;
+        
+        const type = option.dataset.type;
+        if (!selectedDate) return;
+
+        createHoliday(selectedDate, type);
+        closeModal();
+      });
+
+      closeModalBtn.addEventListener('click', closeModal);
+      modal.addEventListener('click', function (ev) {
+        if (ev.target === modal) closeModal();
+      });
+
+      document.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape' && !modal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+
+      // Sync button
+      syncBtn.addEventListener('click', loadHolidaysFromBackend);
+
+      // Format date helper
+      function formatDate(dateStr) {
+        const d = new Date(dateStr + 'T00:00:00');
+        return d.toLocaleDateString(undefined, { 
+          day: '2-digit', 
+          month: 'short', 
+          year: 'numeric' 
+        });
+      }
+
+      // Initialize: Load holidays from backend
+      await loadHolidaysFromBackend();
+    });
+  </script>
+<!-- Temporary Debug Script -->
+<script>
+async function testBackendConnection() {
+  console.log('🔍 Testing backend connection...');
+  
+  try {
+    // Test 1: Basic health endpoint
+    const healthResponse = await fetch('http://localhost:5000/api/health');
+    console.log('Health endpoint:', healthResponse.status, healthResponse.ok);
+    
+    if (healthResponse.ok) {
+      const healthData = await healthResponse.json();
+      console.log('Health data:', healthData);
+    }
+
+    // Test 2: Check if user is authenticated
+    const token = localStorage.getItem('tiffintech_token');
+    console.log('Token exists:', !!token);
+    console.log('Token:', token ? token.substring(0, 20) + '...' : 'None');
+
+    if (token) {
+      // Test 3: Try holidays endpoint directly
+      const holidaysResponse = await fetch('http://localhost:5000/api/holidays/vendor', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('Holidays endpoint:', holidaysResponse.status, holidaysResponse.ok);
+      
+      if (!holidaysResponse.ok) {
+        const errorText = await holidaysResponse.text();
+        console.log('Holidays error response:', errorText);
+      } else {
+        const holidaysData = await holidaysResponse.json();
+        console.log('Holidays data:', holidaysData);
+      }
+    }
+
+  } catch (error) {
+    console.error('Connection test failed:', error);
+    console.log('Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+  }
+}
+
+// Run the test when page loads
+document.addEventListener('DOMContentLoaded', testBackendConnection);
+</script>
+<!-- Load JavaScript Files -->
+<script src="js/config.js"></script>
+<script src="js/utils/storage.js"></script>
+<script src="js/utils/helpers.js"></script>
+<script src="js/services/auth-service.js"></script>
+<script src="js/services/vendor-service.js"></script>
+<script src="js/services/subscription-service.js"></script>
+<script src="js/services/customer-service.js"></script>
+<script src="js/services/order-service.js"></script>
+<script src="js/services/payment-service.js"></script>
+<script src="js/services/announcement-service.js"></script>
+<script src="js/services/holiday-service.js"></script>
+</body>
+</html>

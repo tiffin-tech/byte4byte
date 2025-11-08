@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vendor Announcements - TiffinTech</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-4 shadow-md">
+    <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Announcements</h1>
+      <a href="vendor-dashboard.html" 
+         class="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-green-100">
+        Back to Dashboard
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-3xl mx-auto px-6 py-8">
+    <h2 class="text-xl font-semibold mb-4">Create Announcement</h2>
+
+    <!-- Announcement Form -->
+    <form id="announcementForm" class="bg-white p-6 rounded-lg shadow-md space-y-4">
+      <textarea id="announcementText" rows="4" 
+                class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-green-500"
+                placeholder="Type your announcement here..."></textarea>
+      
+      <button type="submit"
+              class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">
+        Send Announcement
+      </button>
+    </form>
+
+    <!-- Sent Announcements -->
+    <div class="mt-8">
+      <h3 class="text-lg font-semibold mb-2">Your Announcements</h3>
+      <ul id="announcementList" class="space-y-3"></ul>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById("announcementForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const text = document.getElementById("announcementText").value.trim();
+      if (text === "") return;
+
+      // Save announcement locally (simulate DB for now)
+      let announcements = JSON.parse(localStorage.getItem("announcements") || "[]");
+      announcements.unshift({ text, date: new Date().toLocaleString() });
+      localStorage.setItem("announcements", JSON.stringify(announcements));
+
+      // Reset field
+      document.getElementById("announcementText").value = "";
+
+      // Reload list
+      loadAnnouncements();
+    });
+
+    function loadAnnouncements() {
+      let list = document.getElementById("announcementList");
+      list.innerHTML = "";
+      let announcements = JSON.parse(localStorage.getItem("announcements") || "[]");
+
+      announcements.forEach(a => {
+        let li = document.createElement("li");
+        li.className = "p-4 bg-gray-100 rounded-lg shadow-sm";
+        li.innerHTML = `<p class="text-gray-800">${a.text}</p>
+                        <span class="text-xs text-gray-500">📅 ${a.date}</span>`;
+        list.appendChild(li);
+      });
+    }
+
+    // Load on page start
+    loadAnnouncements();
+  </script>
+<!-- Load JavaScript Files -->
+<script src="js/config.js"></script>
+<script src="js/utils/storage.js"></script>
+<script src="js/utils/helpers.js"></script>
+<script src="js/services/auth-service.js"></script>
+<script src="js/services/vendor-service.js"></script>
+<script src="js/services/subscription-service.js"></script>
+<script src="js/services/customer-service.js"></script>
+<script src="js/services/order-service.js"></script>
+<script src="js/services/payment-service.js"></script>
+<script src="js/services/announcement-service.js"></script>
+<script src="js/services/holiday-service.js"></script>
+</body>
+</html>

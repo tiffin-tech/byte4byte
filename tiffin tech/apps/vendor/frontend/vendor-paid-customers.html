@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paid Customers - TiffinTech</title>
+  <!-- Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="css/vendor-dashboard.css">
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between">
+        <div class="flex space-x-7">
+          <div>
+            <a href="index.html" class="flex items-center py-4">
+              <span class="font-semibold text-green-600 text-2xl">TiffinTech</span>
+            </a>
+          </div>
+          <div class="hidden md:flex items-center space-x-1">
+            <a href="index.html" class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300">Home</a>
+            <a href="browse-vendors.html" class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300">Browse</极>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-3">
+          <button id="profile-btn" class="p-2 rounded-full hover:bg-gray-200 transition duration-300">
+            <i class="fas fa-user-circle text-2xl text-green-600"></i>
+          </button>
+          <a href="vendor-dashboard.html" class="py-2 px-4 font-medium text-white bg-green-600 rounded hover:bg-green-700 transition duration-300">Dashboard</a>
+          <button id="logout-btn" class="py-2 px-4 font-medium text-gray-500 rounded hover:极g-gray-200 transition duration-300">Logout</button>
+        </div>
+        <div class="md:hidden flex items-center">
+          <button id="mobile-profile-btn" class="p-2 mr-2 rounded-full hover:bg-gray-200 transition duration-300">
+            <i class="fas fa-user-circle text-2xl text-green-600"></i>
+          </button>
+          <button class="outline-none mobile-menu-button">
+            <svg class="w-6 h-6 text-gray-500极 fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M4 6h16M4 12h16M4 18极16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="hidden mobile-menu">
+      <ul class="pt-2 pb-3">
+        <li><a href="index.html" class="block pl-4 pr-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Home</a></li>
+        <li><a href="browse-vendors.html" class="block pl-4 pr-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Browse</a></li>
+        <li><a href="vendor-dashboard.html" class="block pl-4 pr-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Dashboard</a></li>
+        <li><button id="mobile-profile-btn-2" class="block w-full text-left pl-4 pr-4 py-2极text-sm text-gray-700 hover:bg-green-500 hover:text-white">View Profile</button></li>
+        <li><button id="mobile-logout-btn" class="block w-full text-left pl-4 pr-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Profile Modal -->
+  <div id="profile-modal" class="profile-modal">
+    <div class="profile-modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">Your Profile</h2>
+        <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="vendor-profile-details" class="space-y-3">
+        <!-- Profile details will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-8">
+    <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold mb-2">Paid Customers</h1>
+        <p class="text-green-100">View customers who have made payments</p>
+      </div>
+      <button id="header-profile-btn" class="md:hidden p-2 rounded-full hover:bg-green-700 transition duration-300">
+        <i class="fas fa-user-circle text-2xl text-white"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-green-100 rounded-full mr-4">
+            <i class="fas fa-users text-green-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Total Paid Customers</p>
+            <h3 class="text-2xl font-bold text-green-600">100</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+          <div class="flex">
+            <input type="text" placeholder="Search customers..." class="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            <button class="bg-green-600 text-white px-4 py-2 rounded-r-md hover:bg-green-700 transition duration-300">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option>All Locations</option>
+            <option>A2 Hostel</option>
+            <option>A3 Hostel</option>
+            <option>A4 Hostel</option>
+            <option>A5 Hostel</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Plan Type</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option>All Plans</option>
+            <option>Monthly Veg</option>
+            <option>Monthly Non-Veg</option>
+            <option>One-Time</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Payment Month</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option>July 2023</option>
+            <option>June 2023</option>
+            <option>May 2023</option>
+            <option>April 2023</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paid Customers Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium极text-gray-500 uppercase tracking-wider">Location</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan Details</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Receipt</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <!-- Customer 1 -->
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                      <span class="text-green-600 font-medium">RA</span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">Rahul Agarwal</div>
+                    <div class="text-sm text-gray-500">+91 9876543210</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">A2 Hostel, Room 205</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">Monthly Veg</div>
+                <div class="text-sm text-gray-500">July 2023</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">15 Jul 2023</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900 font-semibold">₹2500</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <button class="text-green-600 hover:text-green-900">
+                  <i class="fas fa-download mr-1"></i> Download
+                </button>
+              </td>
+            </tr>
+            
+            <!-- Customer 2 -->
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <span class="text-blue-600 font-medium">PS</span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">Priya Singh</div>
+                    <div class="text-sm text-gray-500">+91 8765432109</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">A3 Hostel, Room 312</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">Monthly Non-Veg</div>
+                <div class="text-sm text-gray-500">July 2023</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">14 Jul 2023</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900 font-semibold">₹3000</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <button class="text-green-600 hover:text-green-900">
+                  <i class="fas fa-download mr-1"></i> Download
+                </button>
+              </td>
+            </tr>
+            
+            <!-- Customer 3 -->
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                      <span class="text-purple-600 font-medium">AM</span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">Amit Mishra</div>
+                    <div class="text-sm text-gray-500">+91 7654321098</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">A4 Hostel, Room 108</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">One-Time Veg (5 meals)</div>
+                <div class="text-sm text-gray-500">July 2023</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">16 Jul 2023</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900 font-semibold">₹400</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <button class="text-green-600 hover:text-green-900">
+                  <i class="fas fa-download mr-1"></i> Download
+                </button>
+              </td>
+            </tr>
+            
+            <!-- Customer 4 -->
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                      <span class="text-red-600 font-medium">SK</span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">Sneha Kumar</div>
+                    <div class="text-sm text-gray-500">+91 6543210987</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">A5 Hostel, Room 415</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">Monthly Veg</div>
+                <div class="text-sm text-gray-500">July 2023</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">13 Jul 2023</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900 font-semibold">₹2500</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <button class="text-green-600 hover:text-green-900">
+                  <i class="fas fa-download mr-1"></极> Download
+                </button>
+              </td>
+            </tr>
+            
+            <!-- Customer 5 -->
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <span class="text-indigo-600 font-medium">VK</span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">Vikram Khanna</div>
+                    <div class="text-sm text-gray-500">+91 9432109876</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">A2 Hostel, Room 301</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">Monthly Non-Veg</div>
+                <div class="text-sm text-gray-500">July 2023</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">12 Jul 2023</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900 font-semib极d">₹3000</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <button class="text-green-600 hover:text-green-900">
+                  <i class="fas fa-download mr-1"></i> Download
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="bg-white px极4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm text-gray-700">
+              Showing <span class="font-medium">1</span> to <span class="font-medium">5</span> of <span class="font-medium">100</span> results
+            </p>
+          </div>
+          <div>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Previous</span>
+                <i class="fas fa-chevron-left"></i>
+              </a>
+              <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">1</a>
+              <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text极m font-medium text-gray-700 hover:bg-gray-50">2</a>
+              <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">3</a>
+              <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>
+              <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">10</a>
+              <a href="#" class="relative inline-flex items-center px-2极y-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Next</span>
+                <极 class="fas fa-chevron-right"></i>
+              </a>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-8 text-center">
+      <a href="vendor-dashboard.html" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white pt-10 pb-6">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex flex-wrap">
+        <div class="w-full md:w-1/3 mb-6">
+          <h5 class="text-xl font-bold mb-4">TiffinTech</h5>
+          <p class="text-gray-400">Connecting Students with Local Tiffin Services</p>
+        </div>
+        <div class="w-full md:w-1/3 mb-6">
+          <h5 class="text-lg font-bold mb-4">Quick Links</h5>
+          <ul class="text-gray-400">
+            <li class="mb-2"><a href="极dex.html" class="hover:text-green-400">Home</a></li>
+            <li class="mb-2"><a href="browse-vendors.html" class="hover:text-green-400">Browse Vendors</a></li>
+            <li class="mb-2"><a href="vendor-registration.html" class="hover:text-green-400">Vendor Registration</a></li>
+          </ul>
+        </div>
+        <div class="w-full md:w-1/3 mb-6">
+          <h5 class="text-lg font-bold mb-4">Connect With Us</h5>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-green-400">
+              <i class="fab fa-facebook-f text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-green-400">
+              <i class="fab fa-twitter text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-green-400">
+              <i class="fab fa-instagram text-xl"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+        <p>&copy; 2023 TiffinTech. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="js/vendor-profile.js"></script>
+  <script src="js/vendor-dashboard.js"></script>
+  <!-- Load JavaScript Files -->
+<script src="js/config.js"></script>
+<script src="js/utils/storage.js"></script>
+<script src="js/utils/helpers.js"></script>
+<script src="js/services/auth-service.js"></script>
+<script src="js/services/vendor-service.js"></script>
+<script src="js/services/subscription-service.js"></script>
+<script src="js/services/customer-service.js"></script>
+<script src="js/services/order-service.js"></script>
+<script src="js/services/payment-service.js"></script>
+<script src="js/services/announcement-service.js"></script>
+<script src="js/services/holiday-service.js"></script>
+</body>
+</html>

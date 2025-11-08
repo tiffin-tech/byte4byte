@@ -1,0 +1,18 @@
+{
+  "name": "tiffintech-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/student/backend",
+    "apps/vendor/backend"
+  ],
+  "scripts": {
+    "student": "npm run dev -w apps/student/backend",
+    "vendor": "npm run dev -w apps/vendor/backend",
+    "dev": "concurrently \"npm:student\" \"npm:vendor\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
+

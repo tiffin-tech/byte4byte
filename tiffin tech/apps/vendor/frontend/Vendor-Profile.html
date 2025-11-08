@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Profile - TiffinTech</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between">
+        <div class="flex space-x-7">
+          <a href="index.html" class="flex items-center py-4">
+            <span class="font-semibold text-green-600 text-2xl">TiffinTech</span>
+          </a>
+          <div class="hidden md:flex items-center space-x-1">
+            <a href="vendor-dashboard.html" class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition">Dashboard</a>
+            <a href="Vendor-Profile.html" class="py-4 px-2 text-green-600 font-semibold border-b-2 border-green-600">Profile</a>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-3">
+          <button id="logout-btn" class="py-2 px-4 font-medium text-gray-500 rounded hover:bg-gray-200 transition">Logout</button>
+        </div>
+        <div class="md:hidden flex items-center">
+          <button class="outline-none mobile-menu-button">
+            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div class="hidden mobile-menu md:hidden">
+      <ul class="pt-2 pb-3 space-y-2">
+        <li><a href="vendor-dashboard.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Dashboard</a></li>
+        <li><a href="Vendor-Profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-500 hover:text-white">Profile</a></li>
+        <li><button id="mobile-logout-btn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-500 hover:text-white">Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Profile Header -->
+  <header class="bg-green-600 text-white py-8">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h1 class="text-3xl font-bold mb-2">Vendor Profile</h1>
+      <p class="text-green-100">Manage your business information and preferences</p>
+    </div>
+  </header>
+
+  <!-- Profile Content -->
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    <!-- Status Alert -->
+    <div id="status-alert" class="mb-6 hidden">
+      <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
+        <div class="flex items-center">
+          <svg class="w-6 h-6 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+          </svg>
+          <p id="status-message" class="text-yellow-800 font-medium"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Form -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <form id="vendor-profile-form" class="space-y-8">
+        <!-- Personal Information -->
+        <div>
+          <h2 class="text-2xl font-bold mb-4 border-b border-gray-200 pb-2">Personal Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+              <input type="text" id="fullName" name="fullName" required 
+                     class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" readonly>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+              <input type="tel" id="phone" name="phone" required 
+                     class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" readonly>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <input type="email" id="email" name="email" 
+                     class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" readonly>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
+              <input type="number" id="yearsExperience" name="yearsExperience" min="0" 
+                     class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" readonly>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Information -->
+        <div>
+          <h2 class="text-2xl font-bold mb-4 border-b border-gray-200 pb-2">Business Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Service Name *</label>
+              <input type="text" id="serviceName" name="serviceName" required 
+                     class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" readonly>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Food Type *</label>
+              <select id="foodType" name="foodType" required 
+                      class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" disabled>
+                <option value="">Select Food Type</option>
+                <option value="veg">Vegetarian</option>
+                <option value="nonveg">Non-Vegetarian</option>
+                <option value="both">Both Vegetarian & Non-Vegetarian</option>
+              </select>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Full Address *</label>
+              <textarea id="address" name="address" rows="3" required 
+                        class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" readonly></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Pincode *</label>
+              <input type="text" id="pincode" name="pincode" required 
+                     class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" readonly>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Locations *</label>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-2" id="deliveryLocationsContainer">
+                <!-- Delivery locations will be populated here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing Information -->
+        <div>
+          <h2 class="text-2xl font-bold mb-4 border-b border-gray-200 pb-2">Pricing Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Monthly Tiffin Rate (₹) *</label>
+              <input type="number" id="monthlyRate" name="monthlyRate" required 
+                     class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" readonly>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">One-Time Meal Rate (₹) *</label>
+              <input type="number" id="oneTimeRate" name="oneTimeRate" required 
+                     class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" readonly>
+            </div>
+          </div>
+        </div>
+
+        <!-- Availability -->
+        <div>
+          <h2 class="text-2xl font-bold mb-4 border-b border-gray-200 pb-2">Availability</h2>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Weekly Holiday *</label>
+            <select id="weeklyHoliday" name="weeklyHoliday" required 
+                    class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 bg-gray-50" disabled>
+              <option value="">Select Weekly Holiday</option>
+              <option value="sunday">Sunday</option>
+              <option value="monday">Monday</option>
+              <option value="tuesday">Tuesday</option>
+              <option value="wednesday">Wednesday</option>
+              <option value="thursday">Thursday</option>
+              <option value="friday">Friday</option>
+              <option value="saturday">Saturday</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+          <button type="button" id="edit-btn" 
+                  class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition font-semibold">
+            <i class="fas fa-edit mr-2"></i>Edit Profile
+          </button>
+          <button type="submit" id="save-btn" 
+                  class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition font-semibold hidden">
+            <i class="fas fa-save mr-2"></i>Save Changes
+          </button>
+          <button type="button" id="cancel-btn" 
+                  class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition font-semibold hidden">
+            <i class="fas fa-times mr-2"></i>Cancel
+          </button>
+          <a href="vendor-dashboard.html" 
+             class="bg-gray-200 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-300 transition font-semibold text-center">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+          </a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white pt-10 pb-6">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex flex-wrap text-center md:text-left">
+        <div class="w-full md:w-1/3 mb-6">
+          <h5 class="text-xl font-bold mb-4">TiffinTech</h5>
+          <p class="text-gray-400">Connecting Students with Local Tiffin Services</p>
+        </div>
+        <div class="w-full md:w-1/3 mb-6">
+          <h5 class="text-lg font-bold mb-4">Vendor Links</h5>
+          <ul class="text-gray-400 space-y-2">
+            <li><a href="vendor-dashboard.html" class="hover:text-green-400">Dashboard</a></li>
+            <li><a href="Vendor-Profile.html" class="hover:text-green-400">Profile</a></li>
+            <li><a href="vendor-orders.html" class="hover:text-green-400">Orders</a></li>
+          </ul>
+        </div>
+        <div class="w-full md:w-1/3 mb-6">
+          <h5 class="text-lg font-bold mb-4">Support</h5>
+          <ul class="text-gray-400 space-y-2">
+            <li><a href="#" class="hover:text-green-400">Help Center</a></li>
+            <li><a href="#" class="hover:text-green-400">Contact Support</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+        <p>&copy; 2025 TiffinTech. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Load JavaScript Files -->
+  <script src="js/config.js"></script>
+  <script src="js/utils/storage.js"></script>
+  <script src="js/utils/helpers.js"></script>
+  <script src="js/services/auth-service.js"></script>
+  <script src="js/services/vendor-service.js"></script>
+
+  <script>
+    // DOM Elements
+    const mobileMenuBtn = document.querySelector(".mobile-menu-button");
+    const mobileMenu = document.querySelector(".mobile-menu");
+    const logoutBtn = document.getElementById("logout-btn");
+    const mobileLogoutBtn = document.getElementById("mobile-logout-btn");
+    const profileForm = document.getElementById("vendor-profile-form");
+    const editBtn = document.getElementById("edit-btn");
+    const saveBtn = document.getElementById("save-btn");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const statusAlert = document.getElementById("status-alert");
+
+    // Mobile Menu Toggle
+    mobileMenuBtn.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+
+    // Logout functionality
+    function logout() {
+      AuthService.logout();
+    }
+
+    if (logoutBtn) logoutBtn.addEventListener('click', logout);
+    if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', logout);
+
+    // Form mode management
+    let isEditMode = false;
+
+    function enableEditMode() {
+      isEditMode = true;
+      const inputs = profileForm.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        if (input.id !== 'email') { // Keep email readonly
+          input.readOnly = false;
+          input.disabled = false;
+          input.classList.remove('bg-gray-50');
+          input.classList.add('bg-white');
+        }
+      });
+      editBtn.classList.add('hidden');
+      saveBtn.classList.remove('hidden');
+      cancelBtn.classList.remove('hidden');
+    }
+
+    function disableEditMode() {
+      isEditMode = false;
+      const inputs = profileForm.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        input.readOnly = true;
+        if (input.tagName === 'SELECT') {
+          input.disabled = true;
+        }
+        input.classList.remove('bg-white');
+        input.classList.add('bg-gray-50');
+      });
+      editBtn.classList.remove('hidden');
+      saveBtn.classList.add('hidden');
+      cancelBtn.classList.add('hidden');
+    }
+
+    // Load vendor profile data
+    async function loadVendorProfile() {
+      try {
+        if (!AuthService.isAuthenticated()) {
+          Helpers.showNotification('Please login first', 'error');
+          setTimeout(() => {
+            window.location.href = 'login_singup.html';
+          }, 2000);
+          return;
+        }
+
+        const vendorResponse = await VendorService.getProfile();
+        
+        if (vendorResponse.success) {
+          const vendor = vendorResponse.data.vendor;
+          
+          // Fill personal information
+          document.getElementById('fullName').value = vendor.personalInfo?.fullName || '';
+          document.getElementById('phone').value = vendor.personalInfo?.phone || '';
+          document.getElementById('email').value = vendor.personalInfo?.email || '';
+          document.getElementById('yearsExperience').value = vendor.personalInfo?.yearsExperience || 0;
+          
+          // Fill business information
+          document.getElementById('serviceName').value = vendor.businessInfo?.serviceName || '';
+          document.getElementById('foodType').value = vendor.businessInfo?.foodType || '';
+          document.getElementById('address').value = vendor.businessInfo?.address || '';
+          document.getElementById('pincode').value = vendor.businessInfo?.pincode || '';
+          
+          // Fill delivery locations
+          const locationsContainer = document.getElementById('deliveryLocationsContainer');
+          locationsContainer.innerHTML = '';
+          const deliveryLocations = vendor.businessInfo?.deliveryLocations || [];
+          const allLocations = ['A2', 'A3', 'A4', 'A5', 'Outside'];
+          
+          allLocations.forEach(location => {
+            const isChecked = deliveryLocations.includes(location);
+            const locationElement = `
+              <label class="flex items-center space-x-2 p-2 border rounded-lg ${isChecked ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}">
+                <input type="checkbox" name="deliveryLocation" value="${location}" 
+                       ${isChecked ? 'checked' : ''} disabled
+                       class="h-4 w-4 text-green-600 border-gray-300 rounded">
+                <span class="text-sm text-gray-700">${location} ${location === 'Outside' ? 'Campus' : 'Hostel'}</span>
+              </label>
+            `;
+            locationsContainer.innerHTML += locationElement;
+          });
+          
+          // Fill pricing information
+          document.getElementById('monthlyRate').value = vendor.pricing?.monthlyRate || 0;
+          document.getElementById('oneTimeRate').value = vendor.pricing?.oneTimeRate || 0;
+          
+          // Fill availability
+          document.getElementById('weeklyHoliday').value = vendor.availability?.weeklyHoliday || '';
+          
+          // Show status alert if pending approval
+          if (vendor.status === 'pending') {
+            statusAlert.classList.remove('hidden');
+            document.getElementById('status-message').textContent = 
+              'Your vendor profile is pending admin approval. You will be able to receive orders once approved.';
+          }
+        } else {
+          Helpers.showNotification('Failed to load vendor profile', 'error');
+        }
+
+      } catch (error) {
+        console.error('Error loading vendor profile:', error);
+        Helpers.showNotification('Error loading profile data. Please try again.', 'error');
+      }
+    }
+
+    // Form submission handler
+    profileForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (!isEditMode) return;
+
+      try {
+        Helpers.showLoading(saveBtn);
+        
+        // Get form data
+        const formData = {
+          personalInfo: {
+            fullName: document.getElementById('fullName').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            yearsExperience: parseInt(document.getElementById('yearsExperience').value) || 0
+          },
+          businessInfo: {
+            serviceName: document.getElementById('serviceName').value,
+            foodType: document.getElementById('foodType').value,
+            address: document.getElementById('address').value,
+            pincode: document.getElementById('pincode').value,
+            deliveryLocations: Array.from(document.querySelectorAll('input[name="deliveryLocation"]:checked'))
+                                 .map(checkbox => checkbox.value)
+          },
+          pricing: {
+            monthlyRate: parseInt(document.getElementById('monthlyRate').value),
+            oneTimeRate: parseInt(document.getElementById('oneTimeRate').value)
+          },
+          availability: {
+            weeklyHoliday: document.getElementById('weeklyHoliday').value
+          }
+        };
+
+        // Update vendor profile
+        const updateResponse = await VendorService.completeRegistration(formData);
+        
+        if (updateResponse.success) {
+          Helpers.showNotification('Profile updated successfully!', 'success');
+          disableEditMode();
+          await loadVendorProfile(); // Reload data to ensure consistency
+        } else {
+          throw new Error(updateResponse.message || 'Failed to update profile');
+        }
+
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        Helpers.showNotification(error.message || 'Error updating profile', 'error');
+      } finally {
+        Helpers.hideLoading(saveBtn, '<i class="fas fa-save mr-2"></i>Save Changes');
+      }
+    });
+
+    // Event listeners for buttons
+    editBtn.addEventListener('click', enableEditMode);
+    cancelBtn.addEventListener('click', () => {
+      disableEditMode();
+      loadVendorProfile(); // Reload original data
+    });
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      loadVendorProfile();
+    });
+  </script>
+  <!-- Load JavaScript Files -->
+<script src="js/config.js"></script>
+<script src="js/utils/storage.js"></script>
+<script src="js/utils/helpers.js"></script>
+<script src="js/services/auth-service.js"></script>
+<script src="js/services/vendor-service.js"></script>
+<script src="js/services/subscription-service.js"></script>
+<script src="js/services/customer-service.js"></script>
+<script src="js/services/order-service.js"></script>
+<script src="js/services/payment-service.js"></script>
+<script src="js/services/announcement-service.js"></script>
+<script src="js/services/holiday-service.js"></script>
+</body>
+</html>

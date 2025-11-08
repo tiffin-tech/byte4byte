@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TiffinTech - Manage Holidays</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3a86ff;
+            --primary-dark: #2667cc;
+            --secondary: #ff9e00;
+            --secondary-dark: #e58c00;
+            --accent: #ff5400;
+            --dark: #2d3748;
+            --light: #f8f9fa;
+            --gray: #718096;
+            --light-gray: #e2e8f0;
+            --success: #48bb78;
+            --warning: #ecc94b;
+            --danger: #f56565;
+            --info: #4299e1;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* ===== NOTIFICATION STYLES ===== */
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 380px;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: none;
+    margin-top: 0.5rem;
+}
+
+.notification-dropdown.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.notification-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.notification-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--light-gray);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.notification-item:hover {
+    background-color: var(--light);
+}
+
+.notification-item.unread {
+    background-color: #f0f9ff;
+    border-left: 3px solid var(--primary);
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.notification-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-icon.order { background-color: #e0f2fe; color: var(--info); }
+.notification-icon.payment { background-color: #dcfce7; color: var(--success); }
+.notification-icon.subscription { background-color: #fef3c7; color: var(--warning); }
+.notification-icon.message { background-color: #e0e7ff; color: var(--primary); }
+.notification-icon.system { background-color: #f3e8ff; color: #8b5cf6; }
+.notification-icon.promotion { background-color: #ffedd5; color: var(--secondary); }
+
+.notification-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title-text {
+    font-weight: 500;
+    color: var(--dark);
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.notification-message {
+    color: var(--gray);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.notification-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--gray);
+}
+
+.notification-time {
+    font-size: 0.7rem;
+    color: var(--gray);
+}
+
+.notification-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--light-gray);
+    text-align: center;
+}
+
+.notification-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.notification-empty {
+    padding: 2rem 1.25rem;
+    text-align: center;
+    color: var(--gray);
+}
+
+.notification-empty i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+/* Badge styles */
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--danger);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* Loading state */
+.notification-loading {
+    padding: 2rem;
+    text-align: center;
+    color: var(--gray);
+}
+
+.notification-loading .spinner {
+    animation: spin 1s linear infinite;
+}
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 25px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            color: white;
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .notification-badge {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+        }
+        
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            height: 100%;
+            background: white;
+            z-index: 1000;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            overflow-y: auto;
+        }
+        
+        .mobile-nav.active {
+            left: 0;
+            display: block;
+        }
+        
+        .mobile-nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .close-menu {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .mobile-nav-links {
+            list-style: none;
+        }
+        
+        .mobile-nav-links li {
+            margin-bottom: 15px;
+        }
+        
+        .mobile-nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: var(--dark);
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .mobile-nav-links a:hover, .mobile-nav-links a.active {
+            background-color: var(--light);
+            color: var(--primary);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* Button Styles */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+        
+        /* Dashboard Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            height: fit-content;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 10px;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: var(--dark);
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: var(--light);
+            color: var(--primary);
+        }
+        
+        .sidebar-menu i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+        
+        /* Holiday Management Styles */
+        .holiday-management {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .calendar-container {
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .calendar-weekday {
+            text-align: center;
+            font-weight: 600;
+            padding: 10px 0;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .calendar-day {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            font-weight: 500;
+            user-select: none;
+        }
+        
+        .calendar-day:hover {
+            background-color: var(--light);
+        }
+        
+        .calendar-day.selected {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .calendar-day.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .calendar-day.holiday {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .calendar-day.other-month {
+            color: var(--light-gray);
+        }
+        
+        .calendar-day.current {
+            font-weight: bold;
+            border: 2px solid var(--primary);
+        }
+        
+        .calendar-day.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #f8f9fa;
+        }
+        
+        .calendar-day.disabled:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .calendar-nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--gray);
+            padding: 5px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .calendar-nav-btn:hover {
+            background-color: var(--light);
+        }
+        
+        .holiday-form {
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .form-group select, .form-group input {
+            padding: 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+        
+        .form-group select:focus, .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
+        }
+        
+        .keyboard-hint {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        
+        .keyboard-hint kbd {
+            background-color: var(--light-gray);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+        
+        .scheduled-holidays {
+            margin-top: 20px;
+        }
+        
+        .holiday-list {
+            list-style: none;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .holiday-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            transition: var(--transition);
+        }
+        
+        .holiday-item:hover {
+            background-color: var(--light);
+        }
+        
+        .holiday-item:last-child {
+            border-bottom: none;
+        }
+        
+        .holiday-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .holiday-date {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .holiday-service {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .holiday-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 5px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .delete-btn:hover {
+            background-color: #feeceb;
+        }
+        
+        .info-box {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f0f9ff;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--info);
+        }
+        
+        .info-box h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: var(--info);
+        }
+        
+        .info-box ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+        
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Message Styles */
+        .message {
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .message.success {
+            background-color: #f0fff4;
+            border-left: 4px solid var(--success);
+            color: #2d7a3c;
+        }
+        
+        .message.error {
+            background-color: #fff5f5;
+            border-left: 4px solid var(--danger);
+            color: #c53030;
+        }
+        
+        .message.info {
+            background-color: #f0f9ff;
+            border-left: 4px solid var(--info);
+            color: #2c5aa0;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .holiday-management {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .user-profile span {
+                display: none;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .calendar {
+                gap: 5px;
+            }
+            
+            .calendar-day {
+                height: 35px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.3rem;
+            }
+            
+            .container {
+                width: 95%;
+                padding: 0 10px;
+            }
+            
+            .content-section {
+                padding: 15px;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .holiday-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .holiday-actions {
+                align-self: flex-end;
+            }
+        }
+        
+        /* Multiple selection cursor */
+        body.multiselect {
+            cursor: crosshair;
+        }
+        
+        body.multiselect .calendar-day:hover {
+            background-color: #e3f2fd;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-utensils"></i>
+                    <span>Tiffin</span>Tech
+                </div>
+                
+                <ul class="nav-links">
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="subscribers.html">My Subscriptions</a></li>
+                    <li><a href="payments.html">Payments</a></li>
+                    <li><a href="messages.html">Messages</a></li>
+                    <li><a href="#" class="active">Manage Holidays</a></li>
+                </ul>
+                
+                <div class="user-actions">
+                    <div class="notification-badge">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="user-profile" id="userProfile">
+                        <div class="avatar" id="userAvatar">?</div>
+                        <span id="userName">Loading...</span>
+                    </div>
+                    <button class="btn btn-sm" onclick="logout()" style="background-color: var(--danger);">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+                
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobile-nav">
+        <div class="mobile-nav-header">
+            <h3>Menu</h3>
+            <button class="close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="mobile-nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="services.html"><i class="fas fa-utensils"></i> Services</a></li>
+            <li><a href="subscribers.html"><i class="fas fa-calendar-check"></i> My Subscriptions</a></li>
+            <li><a href="payments.html"><i class="fas fa-credit-card"></i> Payments</a></li>
+            <li><a href="messages.html"><i class="fas fa-comment"></i> Messages</a></li>
+            <li><a href="#" class="active"><i class="fas fa-calendar-alt"></i> Manage Holidays</a></li>
+            <li><a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a></li>
+            <li><a href="reviews.html"><i class="fas fa-star"></i> Reviews</a></li>
+            <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Dashboard Section -->
+    <div class="container">
+        <div class="dashboard">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="services.html"><i class="fas fa-utensils"></i> Browse Services</a></li>
+                    <li><a href="#" class="active"><i class="fas fa-calendar-alt"></i> Manage Holidays</a></li>
+                    <li><a href="subscribers.html"><i class="fas fa-calendar-check"></i> My Subscriptions</a></li>
+                    <li><a href="payments.html"><i class="fas fa-credit-card"></i> Payment History</a></li>
+                    <li><a href="messages.html"><i class="fas fa-comment"></i> Messages</a></li>
+                    <li><a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a></li>
+                    <li><a href="reviews.html"><i class="fas fa-star"></i> My Reviews</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Holiday Management Section -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Manage Your Holidays</h3>
+                        <div id="selectedCount" class="btn btn-sm btn-secondary" style="display: none;">
+                            <i class="fas fa-calendar-check"></i> <span id="count">0</span> Dates Selected
+                        </div>
+                    </div>
+                    
+                    <p>Schedule days when you don't want tiffin delivery. You must schedule holidays at least 24 hours in advance.</p>
+                    
+                    <div id="messageContainer"></div>
+                    
+                    <div class="holiday-management">
+                        <div class="calendar-container">
+                            <div class="calendar-header">
+                                <div class="calendar-title" id="currentMonth">October 2023</div>
+                                <div class="calendar-nav">
+                                    <button class="calendar-nav-btn" id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="calendar-nav-btn" id="next-month"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            
+                            <div class="calendar" id="calendar">
+                                <!-- Calendar will be generated by JavaScript -->
+                            </div>
+                            
+                            <div class="keyboard-hint" style="margin-top: 15px;">
+                                <i class="fas fa-info-circle"></i> 
+                                <strong>Tip:</strong> Click to select single date. Hold <kbd>Ctrl</kbd> or <kbd>Cmd</kbd> for multiple selection.
+                            </div>
+                        </div>
+                        
+                        <div class="holiday-form">
+                            <h4>Schedule New Holiday</h4>
+                            <div class="form-group">
+                                <label for="service-select">Select Service</label>
+                                <select id="service-select">
+                                    <option value="">All Services</option>
+                                    <option value="south-delight">South Delight</option>
+                                    <option value="mama-kitchen">Mama's Kitchen</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="holiday-date">Selected Dates</label>
+                                <input type="text" id="holiday-date" readonly placeholder="Click dates on the calendar to select">
+                                <div class="keyboard-hint">
+                                    <i class="fas fa-mouse-pointer"></i> Click to select single date
+                                    <br>
+                                    <i class="fas fa-mouse-pointer"></i> + <kbd>Ctrl</kbd> for multiple selection
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="holiday-reason">Reason (Optional)</label>
+                                <select id="holiday-reason">
+                                    <option value="">Select a reason</option>
+                                    <option value="travel">Traveling</option>
+                                    <option value="event">Special Event</option>
+                                    <option value="health">Health Reasons</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <button class="btn" id="schedule-holiday">
+                                <i class="fas fa-calendar-plus"></i> Schedule Holiday
+                            </button>
+                            
+                            <div class="scheduled-holidays">
+                                <h4>Your Scheduled Holidays</h4>
+                                <ul class="holiday-list" id="holidayList">
+                                    <li class="loading-message">Loading holidays...</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4><i class="fas fa-info-circle"></i> Important Information</h4>
+                        <ul>
+                            <li>You must schedule holidays at least 24 hours in advance</li>
+                            <li>Holidays scheduled for today or tomorrow will not be processed</li>
+                            <li>You will not be charged for days marked as holidays</li>
+                            <li>You can schedule up to 8 holidays per month</li>
+                            <li>To cancel a holiday, simply delete it from your scheduled holidays list</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+ <script>
+    // Updated configuration
+    const API_BASE = '/api';
+    let currentUser = null;
+    let currentHolidays = [];
+    let currentSubscriptions = []; // Store user's subscriptions
+    let currentDate = new Date();
+    let selectedDates = new Set();
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuthentication();
+        setupMobileMenu();
+        initializeCalendar();
+        setupEventListeners();
+    });
+
+    // Debug authentication
+    function debugAuth() {
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+        
+        console.log('=== AUTH DEBUG ===');
+        console.log('Token exists:', !!token);
+        console.log('User exists:', !!user);
+        console.log('Token preview:', token ? token.substring(0, 20) + '...' : 'No token');
+        console.log('User data:', user ? JSON.parse(user) : 'No user');
+        
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                console.log('Token payload:', payload);
+            } catch (e) {
+                console.log('Cannot decode token:', e.message);
+            }
+        }
+    }
+
+    // Check authentication
+    async function checkAuthentication() {
+        debugAuth();
+        
+        const token = localStorage.getItem('token');
+        const savedUser = localStorage.getItem('user');
+
+        if (!token || !savedUser) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            currentUser = JSON.parse(savedUser);
+            updateUserInterface();
+            await loadSubscriptions(); // Load user's subscriptions first
+            await loadHolidays();
+        } catch (error) {
+            console.error('Auth error:', error);
+            showMessage('Authentication error. Please login again.', 'error');
+            setTimeout(() => logout(), 2000);
+        }
+    }
+
+    // NEW: Load user's subscriptions to get actual vendors
+    async function loadSubscriptions() {
+        try {
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+
+            console.log('📦 Loading subscriptions for vendor list...');
+            
+            const response = await fetch(`${API_BASE}/subscriptions`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('📡 Subscriptions API Response status:', response.status);
+
+            if (response.status === 401) {
+                showMessage('Your session has expired. Please login again.', 'error');
+                setTimeout(() => logout(), 2000);
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`Subscriptions API error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('📊 Subscriptions API response:', data);
+            
+            if (data.success) {
+                currentSubscriptions = data.data || [];
+                console.log(`✅ Loaded ${currentSubscriptions.length} subscriptions`);
+                populateVendorDropdown(currentSubscriptions);
+            } else {
+                throw new Error(data.message || 'Failed to load subscriptions');
+            }
+
+        } catch (error) {
+            console.error('❌ Error loading subscriptions:', error);
+            showMessage('Error loading your subscriptions. Using demo vendors.', 'warning');
+            populateDemoVendors();
+        }
+    }
+
+    // NEW: Populate vendor dropdown with actual subscribed vendors
+    function populateVendorDropdown(subscriptions) {
+        const serviceSelect = document.getElementById('service-select');
+        
+        // Clear existing options except "All Services"
+        serviceSelect.innerHTML = '<option value="all">All Services</option>';
+        
+        if (subscriptions.length === 0) {
+            console.log('No subscriptions found - showing demo vendors');
+            populateDemoVendors();
+            return;
+        }
+
+        // Get unique vendors from subscriptions
+        const uniqueVendors = new Map();
+        
+        subscriptions.forEach(sub => {
+            if (sub.vendorId && sub.vendorId._id && !uniqueVendors.has(sub.vendorId._id)) {
+                uniqueVendors.set(sub.vendorId._id, {
+                    id: sub.vendorId._id,
+                    name: sub.vendorId.name || 'Unknown Vendor',
+                    cuisine: sub.vendorId.cuisine || 'General'
+                });
+            }
+        });
+
+        // Add vendors to dropdown
+        uniqueVendors.forEach(vendor => {
+            const option = document.createElement('option');
+            option.value = vendor.id;
+            option.textContent = `${vendor.name} (${vendor.cuisine})`;
+            serviceSelect.appendChild(option);
+        });
+
+        console.log(`✅ Populated ${uniqueVendors.size} vendors from subscriptions`);
+    }
+
+    // Fallback: Populate with demo vendors
+    function populateDemoVendors() {
+        const serviceSelect = document.getElementById('service-select');
+        
+        // Clear existing options
+        serviceSelect.innerHTML = '<option value="all">All Services</option>';
+        
+        const demoVendors = [
+            { id: 'demo1', name: 'South Delight', cuisine: 'South Indian' },
+            { id: 'demo2', name: 'Mama\'s Kitchen', cuisine: 'North Indian' },
+            { id: 'demo3', name: 'Spice Route', cuisine: 'Multi-cuisine' }
+        ];
+        
+        demoVendors.forEach(vendor => {
+            const option = document.createElement('option');
+            option.value = vendor.id;
+            option.textContent = `${vendor.name} (${vendor.cuisine})`;
+            serviceSelect.appendChild(option);
+        });
+
+        console.log('⚠️ Using demo vendors - no subscriptions found');
+    }
+
+    // Update UI with user data
+    function updateUserInterface() {
+        if (!currentUser) return;
+
+        const userName = currentUser.name || currentUser.username || currentUser.fullName || 'User';
+        document.getElementById('userName').textContent = userName;
+        
+        const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+    }
+
+    // FIXED: Load holidays with better error handling
+    async function loadHolidays() {
+        try {
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+
+            console.log('🔄 Loading holidays from API...');
+            
+            // Try different possible endpoints
+            const endpoints = ['/holidays', '/subscriptions/holidays', '/user/holidays'];
+            let response = null;
+            let lastError = null;
+
+            for (const endpoint of endpoints) {
+                try {
+                    response = await fetch(`${API_BASE}${endpoint}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.status !== 404) {
+                        break; // Use this endpoint if it exists
+                    }
+                } catch (error) {
+                    lastError = error;
+                    continue;
+                }
+            }
+
+            if (!response) {
+                throw new Error('No holidays endpoint found');
+            }
+
+            console.log('📡 Holidays API Response status:', response.status);
+
+            if (response.status === 401) {
+                showMessage('Your session has expired. Please login again.', 'error');
+                setTimeout(() => logout(), 2000);
+                return;
+            }
+
+            if (response.status === 404) {
+                console.log('⚠️ Holidays endpoint not found - showing demo data');
+                displayDemoHolidays();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('📦 Holidays API response:', data);
+            
+            if (data.success) {
+                currentHolidays = data.data || data.holidays || [];
+                console.log('✅ Loaded holidays:', currentHolidays);
+                displayHolidays(currentHolidays);
+                updateCalendarWithHolidays(currentHolidays);
+            } else {
+                throw new Error(data.message || 'Failed to load holidays');
+            }
+
+        } catch (error) {
+            console.error('❌ Error loading holidays:', error);
+            showMessage('Error loading holidays: ' + error.message + ' Showing demo data.', 'error');
+            displayDemoHolidays();
+        }
+    }
+
+    // Display demo holidays when API is not available
+    function displayDemoHolidays() {
+        const demoHolidays = [
+            {
+                _id: 'demo1',
+                date: new Date(new Date().getFullYear(), new Date().getMonth(), 25).toISOString().split('T')[0],
+                vendorId: { name: 'All Services' },
+                serviceType: 'both',
+                reason: 'Christmas Holiday'
+            },
+            {
+                _id: 'demo2', 
+                date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().split('T')[0],
+                vendorId: { name: 'South Delight' },
+                serviceType: 'lunch',
+                reason: 'New Year'
+            }
+        ];
+        
+        currentHolidays = demoHolidays;
+        displayHolidays(currentHolidays);
+        updateCalendarWithHolidays(currentHolidays);
+        showMessage('Using demo holiday data - API not connected', 'info');
+    }
+
+    // Display holidays in the list
+    function displayHolidays(holidays) {
+        const holidayList = document.getElementById('holidayList');
+        
+        if (holidays.length === 0) {
+            holidayList.innerHTML = '<li class="no-holidays">No holidays scheduled yet</li>';
+            return;
+        }
+
+        holidayList.innerHTML = holidays.map(holiday => {
+            // Get vendor name from subscriptions or use fallback
+            let vendorName = 'All Services';
+            if (holiday.vendorId && holiday.vendorId !== 'all') {
+                const subscription = currentSubscriptions.find(sub => 
+                    sub.vendorId && sub.vendorId._id === holiday.vendorId
+                );
+                vendorName = subscription ? 
+                    subscription.vendorId.name : 
+                    (holiday.vendorId.name || 'Unknown Vendor');
+            }
+            
+            return `
+                <li class="holiday-item">
+                    <div class="holiday-details">
+                        <span class="holiday-date">${formatDate(holiday.date)}</span>
+                        <span class="holiday-service">${vendorName} - ${formatServiceType(holiday.serviceType)}</span>
+                        ${holiday.reason ? `<span class="holiday-reason">Reason: ${holiday.reason}</span>` : ''}
+                    </div>
+                    <div class="holiday-actions">
+                        <button class="delete-btn" onclick="deleteHoliday('${holiday._id || holiday.id}')" title="Delete holiday">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </li>
+            `;
+        }).join('');
+    }
+
+    // FIXED: Schedule holiday with proper API endpoint
+// FIXED: Schedule holiday with proper response handling
+async function scheduleHoliday() {
+    const serviceSelect = document.getElementById('service-select');
+    const reasonSelect = document.getElementById('holiday-reason');
+    const scheduleBtn = document.getElementById('schedule-holiday');
+
+    const vendorId = serviceSelect.value || 'all';
+    const reason = reasonSelect.value;
+
+    if (selectedDates.size === 0) {
+        showMessage('Please select at least one date from the calendar', 'error');
+        return;
+    }
+
+    // Validate all dates (at least 24 hours in advance)
+    const now = new Date();
+    const minDate = new Date(now.setDate(now.getDate() + 1));
+    minDate.setHours(0, 0, 0, 0);
+
+    for (const dateStr of selectedDates) {
+        const date = new Date(dateStr);
+        if (date < minDate) {
+            showMessage('All holidays must be scheduled at least 24 hours in advance', 'error');
+            return;
+        }
+    }
+
+    try {
+        // Show loading state
+        scheduleBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Scheduling...';
+        scheduleBtn.disabled = true;
+
+        const token = localStorage.getItem('token');
+        
+        console.log('📅 Scheduling holidays for dates:', Array.from(selectedDates));
+        console.log('🏪 Vendor selected:', vendorId);
+        
+        // Try the correct holiday endpoint
+        const endpoint = '/holidays';
+        
+        let successCount = 0;
+        let errorCount = 0;
+        let errorMessages = [];
+
+        for (const dateStr of selectedDates) {
+            const holidayData = {
+                vendorId: vendorId === 'all' ? null : vendorId,
+                date: dateStr,
+                serviceType: 'both',
+                reason: reason || 'Holiday'
+            };
+            
+            console.log('📤 Sending holiday data:', holidayData);
+            
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(holidayData)
+                });
+
+                console.log('📡 Holiday API Response status:', response.status);
+
+                const data = await response.json();
+                console.log('📦 Holiday API Response data:', data);
+
+                if (response.ok) {
+                    if (data.success) {
+                        successCount++;
+                        console.log('✅ Holiday scheduled successfully:', data.data);
+                    } else {
+                        errorCount++;
+                        const errorMsg = data.message || 'Unknown error';
+                        errorMessages.push(`Date ${dateStr}: ${errorMsg}`);
+                        console.error('❌ Holiday scheduling failed:', errorMsg);
+                    }
+                } else {
+                    errorCount++;
+                    const errorMsg = data.message || `HTTP error: ${response.status}`;
+                    errorMessages.push(`Date ${dateStr}: ${errorMsg}`);
+                    console.error('❌ Holiday scheduling failed with status:', response.status);
+                }
+            } catch (error) {
+                errorCount++;
+                errorMessages.push(`Date ${dateStr}: ${error.message}`);
+                console.error('❌ Holiday scheduling error:', error);
+            }
+        }
+
+        // Show appropriate message based on results
+        if (successCount > 0 && errorCount === 0) {
+            showMessage(`✅ Successfully scheduled ${successCount} holiday(s)!`, 'success');
+        } else if (successCount > 0 && errorCount > 0) {
+            showMessage(`✅ ${successCount} holiday(s) scheduled successfully, but ${errorCount} failed.`, 'warning');
+            if (errorMessages.length > 0) {
+                console.log('❌ Failed dates:', errorMessages);
+                // Show first error message
+                setTimeout(() => {
+                    showMessage(`Error: ${errorMessages[0]}`, 'error');
+                }, 2000);
+            }
+        } else {
+            showMessage(`❌ Failed to schedule any holidays. Please try again.`, 'error');
+            if (errorMessages.length > 0) {
+                console.log('❌ All errors:', errorMessages);
+                // Show first error message
+                setTimeout(() => {
+                    showMessage(`Error: ${errorMessages[0]}`, 'error');
+                }, 2000);
+            }
+        }
+
+        // Reset form and reload if any were successful
+        if (successCount > 0) {
+            clearDateSelection();
+            serviceSelect.value = 'all';
+            reasonSelect.value = '';
+            await loadHolidays();
+        }
+
+    } catch (error) {
+        console.error('❌ Error scheduling holidays:', error);
+        showMessage('Error scheduling holidays: ' + error.message, 'error');
+    } finally {
+        // Reset button state
+        scheduleBtn.innerHTML = '<i class="fas fa-calendar-plus"></i> Schedule Holiday';
+        scheduleBtn.disabled = false;
+    }
+}
+// DEBUG: Test holiday API with detailed logging
+async function debugHolidayAPI() {
+    try {
+        const token = localStorage.getItem('token');
+        const testData = {
+            vendorId: '68f11efd0adfb4ac0094ba40',
+            date: '2025-11-10',
+            serviceType: 'both',
+            reason: 'test'
+        };
+
+        console.log('🔍 DEBUG: Testing holiday API with data:', testData);
+        
+        const response = await fetch(`${API_BASE}/holidays`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(testData)
+        });
+
+        console.log('🔍 DEBUG: Response status:', response.status);
+        console.log('🔍 DEBUG: Response headers:', Object.fromEntries(response.headers.entries()));
+        
+        const responseText = await response.text();
+        console.log('🔍 DEBUG: Response text:', responseText);
+        
+        try {
+            const data = JSON.parse(responseText);
+            console.log('🔍 DEBUG: Parsed response data:', data);
+        } catch (e) {
+            console.log('🔍 DEBUG: Response is not JSON:', e.message);
+        }
+
+    } catch (error) {
+        console.error('🔍 DEBUG: Error testing API:', error);
+    }
+}
+
+// Call this function to debug
+// debugHolidayAPI();
+// NEW: Save holiday to local storage when API is not available
+async function saveHolidayToLocalStorage(holidayData) {
+    try {
+        // Get existing holidays from local storage
+        const storedHolidays = JSON.parse(localStorage.getItem('userHolidays') || '[]');
+        
+        // Create new holiday object
+        const newHoliday = {
+            _id: 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            ...holidayData,
+            createdAt: new Date().toISOString(),
+            isLocal: true // Mark as locally stored
+        };
+        
+        // Add to stored holidays
+        storedHolidays.push(newHoliday);
+        
+        // Save back to local storage
+        localStorage.setItem('userHolidays', JSON.stringify(storedHolidays));
+        
+        console.log('💾 Holiday saved to local storage:', newHoliday);
+        return true;
+    } catch (error) {
+        console.error('❌ Error saving holiday to local storage:', error);
+        return false;
+    }
+}
+
+// FIXED: Load holidays with local storage fallback
+async function loadHolidays() {
+    try {
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        console.log('🔄 Loading holidays from API...');
+        
+        // Try the main holidays endpoint
+        const response = await fetch(`${API_BASE}/holidays`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('📡 Holidays API Response status:', response.status);
+
+        if (response.status === 401) {
+            showMessage('Your session has expired. Please login again.', 'error');
+            setTimeout(() => logout(), 2000);
+            return;
+        }
+
+        let holidays = [];
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('📦 Holidays API response:', data);
+            
+            if (data.success) {
+                holidays = data.data || data.holidays || [];
+                console.log('✅ Loaded holidays from API:', holidays.length);
+            } else {
+                throw new Error(data.message || 'Failed to load holidays');
+            }
+        } else if (response.status === 404) {
+            console.log('⚠️ Holidays endpoint not found - using local storage');
+            holidays = await loadHolidaysFromLocalStorage();
+        } else {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        // Also load holidays from local storage and merge
+        const localHolidays = await loadHolidaysFromLocalStorage();
+        const allHolidays = [...holidays, ...localHolidays];
+        
+        currentHolidays = allHolidays;
+        console.log('✅ Total holidays loaded:', currentHolidays.length);
+        
+        displayHolidays(currentHolidays);
+        updateCalendarWithHolidays(currentHolidays);
+
+    } catch (error) {
+        console.error('❌ Error loading holidays:', error);
+        // Fallback to local storage
+        const localHolidays = await loadHolidaysFromLocalStorage();
+        currentHolidays = localHolidays;
+        displayHolidays(currentHolidays);
+        updateCalendarWithHolidays(currentHolidays);
+        showMessage('Using local holiday storage - API not available', 'info');
+    }
+}
+
+// NEW: Load holidays from local storage
+async function loadHolidaysFromLocalStorage() {
+    try {
+        const storedHolidays = JSON.parse(localStorage.getItem('userHolidays') || '[]');
+        console.log('📂 Loaded holidays from local storage:', storedHolidays.length);
+        return storedHolidays;
+    } catch (error) {
+        console.error('❌ Error loading holidays from local storage:', error);
+        return [];
+    }
+}
+
+// FIXED: Delete holiday with local storage support
+async function deleteHoliday(holidayId) {
+    if (!confirm('Are you sure you want to delete this holiday?')) return;
+
+    try {
+        const token = localStorage.getItem('token');
+        console.log('🗑️ Deleting holiday:', holidayId);
+        
+        // Check if it's a locally stored holiday
+        if (holidayId.startsWith('local_')) {
+            // Delete from local storage
+            await deleteHolidayFromLocalStorage(holidayId);
+            showMessage('✅ Holiday deleted successfully!', 'success');
+            await loadHolidays();
+            return;
+        }
+        
+        // Try to delete from API
+        const response = await fetch(`${API_BASE}/holidays/${holidayId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+                showMessage('✅ Holiday deleted successfully!', 'success');
+                await loadHolidays();
+            } else {
+                throw new Error(data.message || 'Failed to delete holiday');
+            }
+        } else if (response.status === 404) {
+            // API endpoint not found, try local storage
+            await deleteHolidayFromLocalStorage(holidayId);
+            showMessage('✅ Holiday deleted from local storage!', 'success');
+            await loadHolidays();
+        } else {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+    } catch (error) {
+        console.error('❌ Error deleting holiday:', error);
+        showMessage('Error deleting holiday: ' + error.message, 'error');
+    }
+}
+
+// NEW: Delete holiday from local storage
+async function deleteHolidayFromLocalStorage(holidayId) {
+    try {
+        const storedHolidays = JSON.parse(localStorage.getItem('userHolidays') || '[]');
+        const updatedHolidays = storedHolidays.filter(h => h._id !== holidayId);
+        localStorage.setItem('userHolidays', JSON.stringify(updatedHolidays));
+        console.log('🗑️ Holiday deleted from local storage:', holidayId);
+        return true;
+    } catch (error) {
+        console.error('❌ Error deleting holiday from local storage:', error);
+        return false;
+    }
+}
+
+    // FIXED: Delete holiday with better error handling
+    async function deleteHoliday(holidayId) {
+        if (!confirm('Are you sure you want to delete this holiday?')) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            console.log('🗑️ Deleting holiday:', holidayId);
+            
+            // Try different endpoints
+            const endpoints = ['/holidays/', '/subscriptions/holidays/', '/user/holidays/'];
+            let deleted = false;
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${API_BASE}${endpoint}${holidayId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.status !== 404) {
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            showMessage('✅ Holiday deleted successfully!', 'success');
+                            await loadHolidays();
+                            deleted = true;
+                            break;
+                        }
+                    }
+                } catch (error) {
+                    console.log(`Delete endpoint ${endpoint} failed:`, error.message);
+                    continue;
+                }
+            }
+            
+            if (!deleted) {
+                // If no API endpoint works, remove from local state
+                currentHolidays = currentHolidays.filter(h => h._id !== holidayId && h.id !== holidayId);
+                displayHolidays(currentHolidays);
+                updateCalendarWithHolidays(currentHolidays);
+                showMessage('✅ Holiday removed from local view (API not available)', 'info');
+            }
+
+        } catch (error) {
+            console.error('❌ Error deleting holiday:', error);
+            showMessage('Error deleting holiday: ' + error.message, 'error');
+        }
+    }
+
+    // Calendar functionality with multiple selection
+    function initializeCalendar() {
+        generateCalendar(currentDate);
+    }
+
+    function generateCalendar(date) {
+        const calendar = document.getElementById('calendar');
+        const monthYear = document.getElementById('currentMonth');
+        
+        // Set month/year title
+        monthYear.textContent = date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long' 
+        });
+
+        // Get first day of month and number of days
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDay = firstDay.getDay();
+
+        // Clear calendar
+        calendar.innerHTML = '';
+
+        // Add weekday headers
+        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        weekdays.forEach(day => {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-weekday';
+            dayElement.textContent = day;
+            calendar.appendChild(dayElement);
+        });
+
+        // Add empty cells for days before first day of month
+        for (let i = 0; i < startingDay; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day other-month';
+            emptyDay.textContent = '';
+            calendar.appendChild(emptyDay);
+        }
+
+        // Add days of month
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            dayElement.textContent = day;
+            
+            const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            dayElement.dataset.date = dateStr;
+            
+            const cellDate = new Date(date.getFullYear(), date.getMonth(), day);
+            cellDate.setHours(0, 0, 0, 0);
+            
+            // Check if today
+            const todayCheck = new Date();
+            todayCheck.setHours(0, 0, 0, 0);
+            if (cellDate.getTime() === todayCheck.getTime()) {
+                dayElement.classList.add('current');
+            }
+            
+            // Disable past dates and tomorrow (need at least 24 hours advance)
+            if (cellDate < tomorrow) {
+                dayElement.classList.add('disabled');
+                dayElement.title = 'Holidays must be scheduled at least 24 hours in advance';
+            }
+
+            // Check if selected
+            if (selectedDates.has(dateStr)) {
+                dayElement.classList.add('selected');
+            }
+
+            // Add click event with Ctrl/Cmd for multiple selection
+            dayElement.addEventListener('click', function(event) {
+                if (!this.classList.contains('disabled')) {
+                    selectDate(this, event);
+                }
+            });
+
+            calendar.appendChild(dayElement);
+        }
+
+        // Update holiday markers
+        updateCalendarWithHolidays(currentHolidays);
+    }
+
+    function selectDate(dayElement, event) {
+        const dateStr = dayElement.dataset.date;
+        
+        // Toggle selection
+        if (selectedDates.has(dateStr)) {
+            selectedDates.delete(dateStr);
+            dayElement.classList.remove('selected');
+        } else {
+            // If not holding Ctrl/Cmd, clear previous selection
+            if (!event.ctrlKey && !event.metaKey) {
+                clearDateSelection();
+            }
+            selectedDates.add(dateStr);
+            dayElement.classList.add('selected');
+        }
+
+        updateSelectedDatesDisplay();
+    }
+
+    function clearDateSelection() {
+        selectedDates.clear();
+        document.querySelectorAll('.calendar-day.selected').forEach(day => {
+            day.classList.remove('selected');
+        });
+        updateSelectedDatesDisplay();
+    }
+
+    function updateSelectedDatesDisplay() {
+        const dateInput = document.getElementById('holiday-date');
+        const selectedCount = document.getElementById('selectedCount');
+        const countSpan = document.getElementById('count');
+        
+        if (selectedDates.size > 0) {
+            const datesArray = Array.from(selectedDates).sort();
+            dateInput.value = datesArray.map(date => formatDate(date)).join(', ');
+            countSpan.textContent = selectedDates.size;
+            selectedCount.style.display = 'inline-flex';
+        } else {
+            dateInput.value = '';
+            selectedCount.style.display = 'none';
+        }
+    }
+
+    function updateCalendarWithHolidays(holidays) {
+        // Remove existing holiday markers
+        document.querySelectorAll('.calendar-day.holiday').forEach(day => {
+            day.classList.remove('holiday');
+        });
+
+        // Add new holiday markers for current month
+        holidays.forEach(holiday => {
+            const holidayDate = new Date(holiday.date);
+            if (holidayDate.getMonth() === currentDate.getMonth() && 
+                holidayDate.getFullYear() === currentDate.getFullYear()) {
+                const dayNumber = holidayDate.getDate();
+                
+                const dayElement = document.querySelector(`.calendar-day[data-date="${holiday.date}"]`);
+                if (dayElement) {
+                    dayElement.classList.add('holiday');
+                    dayElement.title = `Holiday: ${holiday.reason || 'Scheduled holiday'}`;
+                }
+            }
+        });
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+        // Schedule holiday button
+        document.getElementById('schedule-holiday').addEventListener('click', scheduleHoliday);
+
+        // Calendar navigation
+        document.getElementById('prev-month').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            generateCalendar(currentDate);
+        });
+
+        document.getElementById('next-month').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            generateCalendar(currentDate);
+        });
+
+        // Clear selection when date input is focused
+        document.getElementById('holiday-date').addEventListener('focus', function() {
+            this.blur(); // Prevent keyboard input
+            showMessage('Select dates from the calendar. Use Ctrl/Cmd + click for multiple selection.', 'info');
+        });
+
+        // Add keyboard instructions
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                document.body.classList.add('multiselect');
+            }
+        });
+
+        document.addEventListener('keyup', function(e) {
+            if (!e.ctrlKey && !e.metaKey) {
+                document.body.classList.remove('multiselect');
+            }
+        });
+    }
+
+    // Utility functions
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    function formatServiceType(serviceType) {
+        const types = {
+            'lunch': 'Lunch Only',
+            'dinner': 'Dinner Only',
+            'both': 'Lunch & Dinner'
+        };
+        return types[serviceType] || serviceType;
+    }
+
+    function showMessage(message, type) {
+        const messageContainer = document.getElementById('messageContainer');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}`;
+        messageDiv.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        messageContainer.appendChild(messageDiv);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.parentNode.removeChild(messageDiv);
+            }
+        }, 5000);
+    }
+    // Enhanced debug function
+function enhancedDebug() {
+    console.log('=== ENHANCED DEBUG ===');
+    console.log('User ID:', currentUser?.id);
+    console.log('Subscriptions count:', currentSubscriptions?.length);
+    console.log('Subscriptions:', currentSubscriptions);
+    console.log('Holidays count:', currentHolidays?.length);
+    console.log('Holidays:', currentHolidays);
+    
+    // Check vendor dropdown
+    const serviceSelect = document.getElementById('service-select');
+    console.log('Vendor dropdown options:', serviceSelect?.options.length);
+    console.log('Vendor dropdown values:');
+    for (let option of serviceSelect?.options || []) {
+        console.log('  -', option.value, ':', option.text);
+    }
+}
+
+// Call this after loadSubscriptions and loadHolidays
+
+    // Mobile menu functionality
+    function setupMobileMenu() {
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const closeMenuBtn = document.querySelector('.close-menu');
+        const mobileNav = document.getElementById('mobile-nav');
+        const overlay = document.getElementById('overlay');
+        
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileNav.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        function closeMobileMenu() {
+            mobileNav.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        closeMenuBtn.addEventListener('click', closeMobileMenu);
+        overlay.addEventListener('click', closeMobileMenu);
+    }
+
+    // Logout function
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+    }
+</script>
+</body>
+</html>

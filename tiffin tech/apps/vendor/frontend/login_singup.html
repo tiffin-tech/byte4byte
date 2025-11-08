@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>TiffinTech - Login & Register</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+    <!-- Logo / Title -->
+    <div class="text-center mb-6">
+      <h1 class="text-3xl font-bold text-green-600">TiffinTech</h1>
+      <p class="text-gray-500 mt-1">Welcome back! Please login or register</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex mb-6 border-b border-gray-200">
+      <button id="loginTab" class="flex-1 py-2 text-center font-semibold text-green-600 border-b-2 border-green-600">Login</button>
+      <button id="registerTab" class="flex-1 py-2 text-center font-semibold text-gray-500 hover:text-green-600">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="space-y-4">
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Email</label>
+        <input type="email" id="loginEmail" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="you@example.com" required />
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Password</label>
+        <input type="password" id="loginPassword" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="••••••••" required />
+      </div>
+      <a href="./vendor-dashboard.html">
+      <button type="submit" id="loginBtn" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 font-semibold transition">Login</button>
+      </a>
+      <p class="text-sm text-center text-gray-500 mt-3">
+        Don't have an account? <a href="#" id="switchToRegister" class="text-green-600 hover:underline">Register</a>
+      </p>
+    </form>
+
+    <!-- Registration Form -->
+    <form id="registerForm" class="space-y-4 hidden">
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Full Name</label>
+        <input type="text" id="regName" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="John Doe" required />
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Email</label>
+        <input type="email" id="regEmail" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="you@example.com" required />
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Password</label>
+        <input type="password" id="regPassword" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="••••••••" required />
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Confirm Password</label>
+        <input type="password" id="regConfirmPassword" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="••••••••" required />
+      </div>
+      <button type="submit" id="registerBtn" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 font-semibold transition">Register</button>
+      <p class="text-sm text-center text-gray-500 mt-3">
+        Already have an account? <a href="./vendor-dashboard.html" id="switchToLogin" class="text-green-600 hover:underline">Login</a>
+      </p>
+    </form>
+
+    <!-- Connection Test Section (Temporary) -->
+    <div id="connectionTest" class="mt-6 p-4 bg-blue-50 rounded-lg hidden">
+      <h3 class="text-sm font-semibold text-blue-800 mb-2">Connection Test</h3>
+      <p id="connectionStatus" class="text-sm text-blue-600"></p>
+    </div>
+  </div>
+
+  <!-- Load JavaScript Files -->
+  <script src="js/config.js"></script>
+  <script src="js/utils/storage.js"></script>
+  <script src="js/utils/helpers.js"></script>
+  <script src="js/services/auth-service.js"></script>
+
+  <script>
+    // DOM Elements
+    const loginTab = document.getElementById("loginTab");
+    const registerTab = document.getElementById("registerTab");
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const switchToRegister = document.getElementById("switchToRegister");
+    const switchToLogin = document.getElementById("switchToLogin");
+    const loginBtn = document.getElementById("loginBtn");
+    const registerBtn = document.getElementById("registerBtn");
+    const connectionTest = document.getElementById("connectionTest");
+    const connectionStatus = document.getElementById("connectionStatus");
+
+    // Tab Management
+    function showLogin() {
+      loginForm.classList.remove("hidden");
+      registerForm.classList.add("hidden");
+      loginTab.classList.add("text-green-600","border-b-2","border-green-600");
+      loginTab.classList.remove("text-gray-500");
+      registerTab.classList.remove("text-green-600","border-b-2","border-green-600");
+      registerTab.classList.add("text-gray-500");
+    }
+
+    function showRegister() {
+      registerForm.classList.remove("hidden");
+      loginForm.classList.add("hidden");
+      registerTab.classList.add("text-green-600","border-b-2","border-green-600");
+      registerTab.classList.remove("text-gray-500");
+      loginTab.classList.remove("text-green-600","border-b-2","border-green-600");
+      loginTab.classList.add("text-gray-500");
+    }
+
+    // Event Listeners for tabs
+    loginTab.addEventListener("click", showLogin);
+    registerTab.addEventListener("click", showRegister);
+    switchToRegister.addEventListener("click", e => { e.preventDefault(); showRegister(); });
+    switchToLogin.addEventListener("click", e => { e.preventDefault(); showLogin(); });
+
+    // Test backend connection
+    async function testBackendConnection() {
+      try {
+        connectionTest.classList.remove('hidden');
+        connectionStatus.textContent = 'Testing connection to backend...';
+        
+const response = await fetch('http://localhost:6999/api/health', {
+            method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          connectionStatus.textContent = `✅ Backend connected: ${data.message}`;
+          connectionTest.classList.add('bg-green-50');
+          connectionStatus.classList.add('text-green-600');
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Backend connection test failed:', error);
+        connectionStatus.textContent = `❌ Backend connection failed: ${error.message}`;
+        connectionTest.classList.add('bg-red-50');
+        connectionStatus.classList.add('text-red-600');
+        
+        // Show detailed troubleshooting
+        setTimeout(() => {
+          connectionStatus.innerHTML += `
+            <br><br><strong>Troubleshooting:</strong>
+            <br>• Is backend server running on port 5000?
+            <br>• Check terminal for server logs
+            <br>• Verify no CORS issues
+          `;
+        }, 1000);
+      }
+    }
+
+    // Enhanced Auth Service with better error handling
+    const EnhancedAuthService = {
+      async register(vendorData) {
+        try {
+          console.log('Attempting registration with:', vendorData);
+          
+          const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.REGISTER}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              name: vendorData.name,
+              email: vendorData.email,
+              password: vendorData.password,
+              role: 'vendor'
+            })
+          });
+
+          console.log('Registration response status:', response.status);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Registration failed with response:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+
+          const data = await response.json();
+          console.log('Registration successful:', data);
+          return data;
+
+        } catch (error) {
+          console.error('Registration network error:', error);
+          
+          // Provide more specific error messages
+          if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            throw new Error('Cannot connect to server. Please check if the backend is running on http://localhost:5000');
+          }
+          
+          throw error;
+        }
+      },
+
+      async login(loginData) {
+        try {
+          console.log('Attempting login with:', { email: loginData.email });
+          
+          const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.LOGIN}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email: loginData.email,
+              password: loginData.password
+            })
+          });
+
+          console.log('Login response status:', response.status);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Login failed with response:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+
+          const data = await response.json();
+          console.log('Login successful:', data);
+          return data;
+
+        } catch (error) {
+          console.error('Login network error:', error);
+          
+          if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            throw new Error('Cannot connect to server. Please check if the backend is running on http://localhost:5000');
+          }
+          
+          throw error;
+        }
+      }
+    };
+
+    // Login Form Submission
+    // Login Form Submission - FIXED
+loginForm.addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  const button = document.getElementById("loginBtn");
+
+  // Basic validation
+  if (!email || !password) {
+    showSimpleNotification('Please fill in all fields', 'error');
+    return;
+  }
+
+  if (!Helpers.isValidEmail(email)) {
+    showSimpleNotification('Please enter a valid email address', 'error');
+    return;
+  }
+
+  try {
+    const originalText = Helpers.showLoading(button);
+    
+    // Call login API
+    const result = await EnhancedAuthService.login({ email, password });
+    
+    // Store token and user data
+    Storage.setToken(result.data.token);
+    Storage.setUser(result.data.user);
+    
+    showSimpleNotification('Login successful! Redirecting...', 'success');
+    
+    // FIXED: Redirect based on user role
+    const user = result.data.user;
+    let redirectUrl = 'dashboard.html'; // Default for students/regular users
+    
+    if (user.role === 'vendor' || user.userType === 'vendor') {
+      redirectUrl = 'vendor-dashboard.html'; // Vendors go to vendor dashboard
+    }
+    
+    console.log(`🔄 Redirecting ${user.role} user to: ${redirectUrl}`);
+    
+    // Redirect after delay
+    setTimeout(() => {
+      window.location.href = redirectUrl;
+    }, 1500);
+    
+  } catch (error) {
+    console.error('Login error details:', error);
+    showSimpleNotification(error.message, 'error');
+    Helpers.hideLoading(button, 'Login');
+  }
+});
+    // Registration Form Submission
+   // Registration Form Submission - FIXED
+registerForm.addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const name = document.getElementById("regName").value;
+  const email = document.getElementById("regEmail").value;
+  const password = document.getElementById("regPassword").value;
+  const confirmPassword = document.getElementById("regConfirmPassword").value;
+  const button = document.getElementById("registerBtn");
+
+  // Validation
+  if (!name || !email || !password || !confirmPassword) {
+    showSimpleNotification('Please fill in all fields', 'error');
+    return;
+  }
+
+  if (!Helpers.isValidEmail(email)) {
+    showSimpleNotification('Please enter a valid email address', 'error');
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    showSimpleNotification('Passwords do not match!', 'error');
+    return;
+  }
+
+  if (password.length < 6) {
+    showSimpleNotification('Password must be at least 6 characters long', 'error');
+    return;
+  }
+
+  try {
+    const originalText = Helpers.showLoading(button);
+    
+    // Call registration API
+    const result = await EnhancedAuthService.register({ name, email, password });
+    
+    // Store token and user data
+    Storage.setToken(result.data.token);
+    Storage.setUser(result.data.user);
+    
+    showSimpleNotification('Registration successful! Redirecting...', 'success');
+    
+    // FIXED: For new registration, vendors go to vendor registration
+    const user = result.data.user;
+    let redirectUrl = 'dashboard.html'; // Default for students
+    
+    if (user.role === 'vendor' || user.userType === 'vendor') {
+      redirectUrl = 'vendor-registration.html'; // New vendors complete profile
+    }
+    
+    console.log(`🔄 Redirecting new ${user.role} user to: ${redirectUrl}`);
+    
+    // Redirect after delay
+    setTimeout(() => {
+      window.location.href = redirectUrl;
+    }, 1500);
+    
+  } catch (error) {
+    console.error('Registration error details:', error);
+    showSimpleNotification(error.message, 'error');
+    Helpers.hideLoading(button, 'Register');
+  }
+});
+
+    // Simple notification function (fallback)
+    function showSimpleNotification(message, type = 'success') {
+      // Remove existing notifications
+      const existingNotification = document.querySelector('.simple-notification');
+      if (existingNotification) {
+        existingNotification.remove();
+      }
+
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = `simple-notification fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transition-all duration-300 ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+      }`;
+      notification.textContent = message;
+
+      document.body.appendChild(notification);
+
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+    }
+
+    // Check if user is already logged in - FIXED
+document.addEventListener('DOMContentLoaded', function() {
+  // Test backend connection on page load
+  testBackendConnection();
+  
+  if (AuthService.isAuthenticated()) {
+    const user = Storage.getUser();
+    let redirectUrl = 'dashboard.html'; // Default for students
+    
+    if (user.role === 'vendor' || user.userType === 'vendor') {
+      redirectUrl = 'vendor-dashboard.html'; // Vendors go to vendor dashboard
+    }
+    
+    console.log(`🔄 Auto-redirecting ${user.role} to: ${redirectUrl}`);
+    window.location.href = redirectUrl;
+  }
+});
+  </script>
+  <!-- Load JavaScript Files -->
+<script src="js/config.js"></script>
+<script src="js/utils/storage.js"></script>
+<script src="js/utils/helpers.js"></script>
+<script src="js/services/auth-service.js"></script>
+<script src="js/services/vendor-service.js"></script>
+<script src="js/services/subscription-service.js"></script>
+<script src="js/services/customer-service.js"></script>
+<script src="js/services/order-service.js"></script>
+<script src="js/services/payment-service.js"></script>
+<script src="js/services/announcement-service.js"></script>
+<script src="js/services/holiday-service.js"></script>
+</body>
+</html>

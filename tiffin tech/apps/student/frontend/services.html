@@ -1,0 +1,2120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TiffinTech - Browse Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #f97316;
+            --secondary-dark: #ea580c;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --light-gray: #e5e7eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+        }
+        
+        /* ===== GLOBAL STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background-color: #f3f4f6;
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ===== NOTIFICATION STYLES ===== */
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 380px;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: none;
+    margin-top: 0.5rem;
+}
+
+.notification-dropdown.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.notification-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.notification-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--light-gray);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.notification-item:hover {
+    background-color: var(--light);
+}
+
+.notification-item.unread {
+    background-color: #f0f9ff;
+    border-left: 3px solid var(--primary);
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.notification-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-icon.order { background-color: #e0f2fe; color: var(--info); }
+.notification-icon.payment { background-color: #dcfce7; color: var(--success); }
+.notification-icon.subscription { background-color: #fef3c7; color: var(--warning); }
+.notification-icon.message { background-color: #e0e7ff; color: var(--primary); }
+.notification-icon.system { background-color: #f3e8ff; color: #8b5cf6; }
+.notification-icon.promotion { background-color: #ffedd5; color: var(--secondary); }
+
+.notification-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title-text {
+    font-weight: 500;
+    color: var(--dark);
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.notification-message {
+    color: var(--gray);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.notification-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--gray);
+}
+
+.notification-time {
+    font-size: 0.7rem;
+    color: var(--gray);
+}
+
+.notification-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--light-gray);
+    text-align: center;
+}
+
+.notification-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.notification-empty {
+    padding: 2rem 1.25rem;
+    text-align: center;
+    color: var(--gray);
+}
+
+.notification-empty i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+/* Badge styles */
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--danger);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* Loading state */
+.notification-loading {
+    padding: 2rem;
+    text-align: center;
+    color: var(--gray);
+}
+
+.notification-loading .spinner {
+    animation: spin 1s linear infinite;
+}
+        
+        .container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        /* ===== HEADER STYLES ===== */
+        header {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.875rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .notification-badge {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        /* ===== BUTTON STYLES ===== */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 0.875rem;
+            font-size: 0.8125rem;
+        }
+        
+        /* ===== DASHBOARD LAYOUT ===== */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        /* ===== SIDEBAR STYLES ===== */
+        .sidebar {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--dark);
+            border-radius: 6px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: var(--light);
+            color: var(--primary);
+        }
+        
+        .sidebar-menu i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* ===== MAIN CONTENT STYLES ===== */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.875rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .section-title {
+            font-size: 1.375rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* ===== SEARCH AND FILTER STYLES ===== */
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .filter-btn {
+            background-color: white;
+            border: 1px solid var(--light-gray);
+            padding: 0 1.25rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+        
+        .filter-btn:hover {
+            background-color: var(--light);
+            border-color: var(--primary);
+        }
+        
+        .filter-panel {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            display: none;
+            border: 1px solid var(--light-gray);
+        }
+        
+        .filter-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+        
+        .filter-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .filter-option {
+            padding: 0.5rem 1rem;
+            background-color: var(--light);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+        
+        .filter-option:hover, .filter-option.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* ===== SERVICES GRID STYLES ===== */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .service-card {
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: var(--transition);
+            background-color: white;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .service-image {
+            height: 180px;
+            width: 100%;
+            object-fit: cover;
+        }
+        
+        .service-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            z-index: 2;
+        }
+        
+        .service-info {
+            padding: 1.25rem;
+            position: relative;
+        }
+        
+        .service-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .service-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            align-items: center;
+        }
+        
+        .service-rating {
+            color: var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .service-price {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .service-description {
+            color: var(--gray);
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        .service-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .service-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .service-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        /* ===== PAGINATION STYLES ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            gap: 0.5rem;
+        }
+        
+        .pagination-item {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .pagination-item:hover, .pagination-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* ===== MODAL STYLES ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow: auto;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem 0;
+        }
+        
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 700px;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            margin: 0 auto;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+        
+        .close-modal:hover {
+            color: var(--dark);
+        }
+        
+        /* ===== MOBILE NAVIGATION ===== */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
+            padding: 2rem;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            overflow-y: auto;
+        }
+        
+        .mobile-nav.active {
+            right: 0;
+        }
+        
+        .mobile-nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .close-nav {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .mobile-nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .mobile-nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 1.1rem;
+            display: block;
+            padding: 0.5rem 0;
+        }
+        
+        .mobile-nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* ===== LOADING AND MESSAGE STYLES ===== */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            color: var(--gray);
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        .message {
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .message.success {
+            background-color: #f0fff4;
+            border-left: 4px solid var(--success);
+            color: #2d7a3c;
+        }
+        
+        .message.error {
+            background-color: #fff5f5;
+            border-left: 4px solid var(--danger);
+            color: #c53030;
+        }
+        
+        .message.info {
+            background-color: #f0f9ff;
+            border-left: 4px solid var(--info);
+            color: #2c5aa0;
+        }
+        
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .nav-links a {
+                font-size: 0.9rem;
+            }
+            
+            .dashboard {
+                grid-template-columns: 220px 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .services-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .user-profile span {
+                display: none;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .search-container {
+                flex-direction: column;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .service-actions {
+                flex-direction: column;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 0.75rem;
+            }
+            
+            .content-section {
+                padding: 1.25rem;
+            }
+            
+            .logo {
+                font-size: 1.25rem;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+            }
+            
+            .service-image {
+                height: 160px;
+            }
+            
+            .service-info {
+                padding: 1rem;
+            }
+            
+            .service-title {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 0.5rem 1rem;
+            }
+            
+            .filter-options {
+                gap: 0.5rem;
+            }
+            
+            .filter-option {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER SECTION ===== -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-utensils"></i>
+                    <span>Tiffin</span>Tech
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="services.html" class="active">Browse Services</a></li>
+                    <li><a href="subscribers.html">My Subscriptions</a></li>
+                    <li><a href="payments.html">Payments</a></li>
+                    <li><a href="messages.html">Messages</a></li>
+                </ul>
+                <div class="user-actions">
+                    <div class="notification-badge">
+                        <a href="notification.html"><i class="fas fa-bell"></i></a>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="user-profile" id="userProfile">
+                        <div class="avatar" id="userAvatar">?</div>
+                        <span id="userName">Loading...</span>
+                    </div>
+                    <button class="btn btn-sm" onclick="logout()" style="background-color: var(--danger);">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== MOBILE NAVIGATION ===== -->
+    <div class="overlay"></div>
+    <div class="mobile-nav">
+        <div class="mobile-nav-header">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <span>Tiffin</span>Tech
+            </div>
+            <button class="close-nav">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="mobile-nav-links">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="services.html" class="active">Browse Services</a></li>
+            <li><a href="Manage Holidays.html">Manage Holidays</a></li>
+            <li><a href="subscribers.html">My Subscriptions</a></li>
+            <li><a href="payments.html">Payment History</a></li>
+            <li><a href="messages.html">Messages</a></li>
+            <li><a href="reviews.html">My Reviews</a></li>
+            <li><a href="settings.html">Settings</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- ===== DASHBOARD SECTION ===== -->
+    <div class="container">
+        <div class="dashboard">
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="services.html" class="active"><i class="fas fa-utensils"></i> Browse Services</a></li>
+                    <li><a href="Manage Holidays.html"><i class="fas fa-calendar-alt"></i> Manage Holidays</a></li>
+                    <li><a href="subscribers.html"><i class="fas fa-calendar-alt"></i> My Subscriptions</a></li>
+                    <li><a href="payments.html"><i class="fas fa-credit-card"></i> Payment History</a></li>
+                    <li><a href="messages.html"><i class="fas fa-comment"></i> Messages</a></li>
+                    <li><a href="reviews.html"><i class="fas fa-star"></i> My Reviews</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="main-content">
+                <!-- WELCOME BANNER -->
+                <div class="content-section">
+                    <h2>Browse Tiffin Services</h2>
+                    <p>Discover the best home-cooked meals in your area. Filter by cuisine, price, or dietary preferences.</p>
+                    <div id="messageContainer"></div>
+                </div>
+
+                <!-- SEARCH AND FILTER SECTION -->
+                <div class="content-section">
+                    <div class="search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" id="searchInput" placeholder="Search for services, cuisines, or dishes...">
+                        </div>
+                        <button class="filter-btn" id="filterToggle">
+                            <i class="fas fa-filter"></i>
+                            Filters
+                        </button>
+                    </div>
+
+                    <div class="filter-panel" id="filterPanel">
+                        <div class="filter-group">
+                            <div class="filter-title">Cuisine Type</div>
+                            <div class="filter-options" id="cuisineFilter">
+                                <div class="filter-option active" data-value="all">All</div>
+                                <div class="filter-option" data-value="north-indian">North Indian</div>
+                                <div class="filter-option" data-value="south-indian">South Indian</div>
+                                <div class="filter-option" data-value="chinese">Chinese</div>
+                                <div class="filter-option" data-value="continental">Continental</div>
+                                <div class="filter-option" data-value="gujarati">Gujarati</div>
+                                <div class="filter-option" data-value="punjabi">Punjabi</div>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <div class="filter-title">Meal Type</div>
+                            <div class="filter-options" id="mealTypeFilter">
+                                <div class="filter-option active" data-value="all">All</div>
+                                <div class="filter-option" data-value="breakfast">Breakfast</div>
+                                <div class="filter-option" data-value="lunch">Lunch</div>
+                                <div class="filter-option" data-value="dinner">Dinner</div>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <div class="filter-title">Price Range (Monthly)</div>
+                            <div class="filter-options" id="priceFilter">
+                                <div class="filter-option active" data-value="all">All</div>
+                                <div class="filter-option" data-value="1000-2000">₹1,000 - ₹2,000</div>
+                                <div class="filter-option" data-value="2000-3000">₹2,000 - ₹3,000</div>
+                                <div class="filter-option" data-value="3000-4000">₹3,000 - ₹4,000</div>
+                                <div class="filter-option" data-value="4000-10000">₹4,000+</div>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <div class="filter-title">Dietary Preferences</div>
+                            <div class="filter-options" id="dietFilter">
+                                <div class="filter-option active" data-value="all">All</div>
+                                <div class="filter-option" data-value="vegetarian">Vegetarian</div>
+                                <div class="filter-option" data-value="vegan">Vegan</div>
+                                <div class="filter-option" data-value="jain">Jain</div>
+                                <div class="filter-option" data-value="eggitarian">Eggitarian</div>
+                                <div class="filter-option" data-value="non-vegetarian">Non-Vegetarian</div>
+                            </div>
+                        </div>
+
+                        <button class="btn" id="applyFiltersBtn">Apply Filters</button>
+                    </div>
+                </div>
+
+                <!-- SERVICES GRID -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Available Services</h3>
+                        <div class="results-count" id="resultsCount">Loading services...</div>
+                    </div>
+
+                    <div class="services-grid" id="servicesGrid">
+                        <div class="loading">
+                            <i class="fas fa-spinner spinner"></i> Loading services...
+                        </div>
+                    </div>
+
+                    <!-- PAGINATION -->
+                    <div class="pagination" id="pagination" style="display: none;">
+                        <!-- Pagination will be generated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FOR SERVICE DETAILS -->
+    <div class="modal" id="serviceModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('serviceModal')">&times;</span>
+            <h3 id="modalServiceTitle">Service Details</h3>
+            
+            <div id="modalServiceContent">
+                <!-- Content will be populated dynamically -->
+            </div>
+            
+            <button class="btn" style="margin-top: 20px; width: 100%;" id="modalSubscribeBtn">
+                <i class="fas fa-cart-plus"></i> Subscribe Now
+            </button>
+        </div>
+    </div>
+
+<script>
+    const API_BASE = 'http://localhost:5000/api';
+    let currentUser = null;
+    let currentVendors = [];
+    let currentFilters = {
+        search: '',
+        cuisineType: 'all',
+        mealType: 'all',
+        priceMin: '',
+        priceMax: '',
+        dietType: 'all',
+        page: 1,
+        limit: 8,
+        sortBy: 'rating',
+        sortOrder: 'desc'
+    };
+    let currentPagination = {};
+
+    // ===== MOBILE NAVIGATION =====
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const closeNavBtn = document.querySelector('.close-nav');
+    const mobileNav = document.querySelector('.mobile-nav');
+    const overlay = document.querySelector('.overlay');
+    
+    function setupMobileMenu() {
+        function openMobileNav() {
+            mobileNav.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeMobileNav() {
+            mobileNav.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', openMobileNav);
+        }
+        if (closeNavBtn) {
+            closeNavBtn.addEventListener('click', closeMobileNav);
+        }
+        if (overlay) {
+            overlay.addEventListener('click', closeMobileNav);
+        }
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuthentication();
+        setupMobileMenu();
+        setupEventListeners();
+        loadVendors();
+    });
+
+    // Check authentication
+    async function checkAuthentication() {
+        const token = localStorage.getItem('token');
+        const savedUser = localStorage.getItem('user');
+
+        if (!token || !savedUser) {
+            // Optional: Redirect to login or show guest mode
+            console.log('User not authenticated - showing in guest mode');
+            updateUserInterface();
+            return;
+        }
+
+        try {
+            currentUser = JSON.parse(savedUser);
+            updateUserInterface();
+        } catch (error) {
+            console.error('Auth error:', error);
+            // Continue in guest mode
+        }
+    }
+
+    // Update UI with user data
+    function updateUserInterface() {
+        if (!currentUser) {
+            // Guest mode
+            document.getElementById('userName').textContent = 'Guest';
+            document.getElementById('userAvatar').textContent = 'G';
+            return;
+        }
+
+        const userName = currentUser.name || currentUser.username || currentUser.fullName || 'User';
+        document.getElementById('userName').textContent = userName;
+        
+        const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+    }
+
+    // Load vendors from API - UPDATED WITH DEBUG LOGS
+    async function loadVendors() {
+        try {
+            showLoadingState();
+            
+            // Build query string from filters
+            const queryParams = new URLSearchParams();
+            Object.keys(currentFilters).forEach(key => {
+                if (currentFilters[key]) {
+                    queryParams.append(key, currentFilters[key]);
+                }
+            });
+
+            const url = `${API_BASE}/vendors/list?${queryParams}`;
+            console.log('🔄 Fetching vendors from:', url);
+
+            const response = await fetch(url);
+            console.log('📡 Response status:', response.status);
+            console.log('📡 Response OK:', response.ok);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('📦 API Response:', data);
+            
+            if (data.success) {
+                currentVendors = data.data.vendors;
+                currentPagination = data.data.pagination;
+                console.log(`✅ Loaded ${currentVendors.length} vendors`);
+                displayVendors(currentVendors);
+                updatePagination();
+                updateResultsCount();
+            } else {
+                throw new Error(data.message || 'Failed to load vendors');
+            }
+
+        } catch (error) {
+            console.error('❌ Error loading vendors:', error);
+            console.error('❌ Error details:', error.message);
+            showMessage('Error loading services: ' + error.message, 'error');
+            displayDemoVendors();
+        }
+    }
+
+    // Display vendors in the grid
+    function displayVendors(vendors) {
+        const servicesGrid = document.getElementById('servicesGrid');
+        
+        if (vendors.length === 0) {
+            servicesGrid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--gray);">
+                    <i class="fas fa-utensils" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <h3>No services found</h3>
+                    <p>Try adjusting your filters or search terms</p>
+                </div>
+            `;
+            return;
+        }
+
+        servicesGrid.innerHTML = vendors.map(vendor => {
+            const imageUrl = vendor.images && vendor.images.length > 0 
+                ? vendor.images[0] 
+                : getDefaultImage(vendor.cuisineType);
+            
+            const mealTypes = vendor.mealTypes ? vendor.mealTypes.join(' + ') : 'Lunch + Dinner';
+            const price = vendor.priceRange?.monthly?.min || 2500;
+            const rating = vendor.rating || 4.0;
+            const reviewCount = vendor.reviewCount || 0;
+            
+            return `
+                <div class="service-card" data-vendor-id="${vendor._id}">
+                    <div style="position: relative;">
+                        <img src="${imageUrl}" alt="${vendor.name}" class="service-image" onerror="this.src='https://images.unsplash.com/photo-1517244683847-7456b63c5969?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'">
+                        ${getVendorBadge(vendor)}
+                    </div>
+                    <div class="service-info">
+                        <h4 class="service-title">${vendor.name}</h4>
+                        <div class="service-meta">
+                            <div class="service-rating">
+                                <i class="fas fa-star"></i>
+                                ${rating.toFixed(1)} (${reviewCount} reviews)
+                            </div>
+                            <div class="service-price">₹${price}/mo</div>
+                        </div>
+                        <p class="service-description">${vendor.description || 'Delicious home-cooked meals with authentic flavors.'}</p>
+                        
+                        <div class="service-features">
+                            <div class="service-feature">
+                                <i class="fas fa-utensils"></i> ${mealTypes}
+                            </div>
+                            <div class="service-feature">
+                                <i class="fas fa-map-marker-alt"></i> ${vendor.location?.city || 'City'}
+                            </div>
+                            <div class="service-feature">
+                                <i class="fas fa-utensil-spoon"></i> ${formatCuisineType(vendor.cuisineType)}
+                            </div>
+                        </div>
+                        
+                        <div class="service-actions">
+                            <button class="btn btn-sm btn-outline" onclick="viewVendorDetails('${vendor._id}')">
+                                <i class="fas fa-eye"></i> View Details
+                            </button>
+                            <button class="btn btn-sm" onclick="subscribeToVendor('${vendor._id}')">
+                                <i class="fas fa-cart-plus"></i> Subscribe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Get default image based on cuisine type
+    function getDefaultImage(cuisineType) {
+        const images = {
+            'north-indian': 'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+            'south-indian': 'https://images.unsplash.com/photo-1517244683847-7456b63c5969?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+            'chinese': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+            'continental': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+            'gujarati': 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+            'punjabi': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+        };
+        return images[cuisineType] || 'https://images.unsplash.com/photo-1517244683847-7456b63c5969?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80';
+    }
+
+    // Get vendor badge based on rating or other criteria
+    function getVendorBadge(vendor) {
+        if (vendor.rating >= 4.5) {
+            return '<div class="service-badge">Popular</div>';
+        } else if (vendor.totalOrders > 100) {
+            return '<div class="service-badge" style="background-color: var(--secondary);">Best Value</div>';
+        } else if (!vendor.isVerified) {
+            return '<div class="service-badge" style="background-color: var(--info);">New</div>';
+        }
+        return '';
+    }
+
+    // Format cuisine type for display
+    function formatCuisineType(cuisineType) {
+        const types = {
+            'north-indian': 'North Indian',
+            'south-indian': 'South Indian',
+            'chinese': 'Chinese',
+            'continental': 'Continental',
+            'gujarati': 'Gujarati',
+            'punjabi': 'Punjabi',
+            'multi-cuisine': 'Multi Cuisine'
+        };
+        return types[cuisineType] || cuisineType;
+    }
+
+    // Show loading state
+    function showLoadingState() {
+        const servicesGrid = document.getElementById('servicesGrid');
+        servicesGrid.innerHTML = `
+            <div class="loading" style="grid-column: 1 / -1;">
+                <i class="fas fa-spinner spinner"></i> Loading services...
+            </div>
+        `;
+    }
+
+    // Update results count
+    function updateResultsCount() {
+        const countElement = document.getElementById('resultsCount');
+        const total = currentPagination.totalVendors || 0;
+        const showing = currentVendors.length;
+        countElement.textContent = `Showing ${showing} of ${total} services`;
+    }
+
+    // Update pagination
+    function updatePagination() {
+        const paginationElement = document.getElementById('pagination');
+        const { currentPage, totalPages, hasNext, hasPrev } = currentPagination;
+
+        if (totalPages <= 1) {
+            paginationElement.style.display = 'none';
+            return;
+        }
+
+        paginationElement.style.display = 'flex';
+        
+        let paginationHTML = '';
+
+        // Previous button
+        if (hasPrev) {
+            paginationHTML += `
+                <div class="pagination-item" onclick="changePage(${currentPage - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+            `;
+        }
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                paginationHTML += `
+                    <div class="pagination-item ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                        ${i}
+                    </div>
+                `;
+            } else if (i === currentPage - 2 || i === currentPage + 2) {
+                paginationHTML += `<div class="pagination-item">...</div>`;
+            }
+        }
+
+        // Next button
+        if (hasNext) {
+            paginationHTML += `
+                <div class="pagination-item" onclick="changePage(${currentPage + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            `;
+        }
+
+        paginationElement.innerHTML = paginationHTML;
+    }
+
+    // Change page
+    function changePage(page) {
+        currentFilters.page = page;
+        loadVendors();
+    }
+
+   // FIXED: View vendor details with better error handling
+async function viewVendorDetails(vendorId) {
+    try {
+        console.log('🔄 Fetching vendor details for:', vendorId);
+        
+        const response = await fetch(`${API_BASE}/vendors/${vendorId}`);
+        
+        console.log('📡 Vendor details response status:', response.status);
+        
+        if (!response.ok) {
+            // Try alternative endpoint if the first one fails
+            console.log('⚠️ Primary endpoint failed, trying alternative...');
+            return await viewVendorDetailsAlternative(vendorId);
+        }
+
+        const data = await response.json();
+        console.log('📦 Vendor details response:', data);
+        
+        if (data.success) {
+            displayVendorModal(data.data);
+        } else {
+            throw new Error(data.message || 'Failed to load vendor details');
+        }
+
+    } catch (error) {
+        console.error('❌ Error loading vendor details:', error);
+        // Try alternative endpoint
+        await viewVendorDetailsAlternative(vendorId);
+    }
+}
+
+// Alternative method to get vendor details
+async function viewVendorDetailsAlternative(vendorId) {
+    try {
+        console.log('🔄 Trying alternative vendor details endpoint...');
+        
+        // Method 1: Try vendors/profile endpoint
+        let response = await fetch(`${API_BASE}/vendors/profile/${vendorId}`);
+        
+        if (!response.ok) {
+            // Method 2: Try vendors/details endpoint
+            response = await fetch(`${API_BASE}/vendors/details/${vendorId}`);
+        }
+        
+        if (!response.ok) {
+            // Method 3: Try vendors/get endpoint
+            response = await fetch(`${API_BASE}/vendors/get/${vendorId}`);
+        }
+
+        if (!response.ok) {
+            throw new Error(`All endpoints failed with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+            displayVendorModal(data.data);
+        } else {
+            throw new Error(data.message || 'Failed to load vendor details');
+        }
+
+    } catch (error) {
+        console.error('❌ All vendor details endpoints failed:', error);
+        
+        // Fallback: Use the vendor data we already have from the list
+        const vendor = currentVendors.find(v => v._id === vendorId);
+        if (vendor) {
+            console.log('✅ Using cached vendor data as fallback');
+            displayVendorModal(vendor);
+        } else {
+            showMessage('Unable to load service details. Please try again later.', 'error');
+        }
+    }
+}
+
+// UPDATED: Display vendor details with fallback data
+function displayVendorModal(vendor) {
+    const modalTitle = document.getElementById('modalServiceTitle');
+    const modalContent = document.getElementById('modalServiceContent');
+    const subscribeBtn = document.getElementById('modalSubscribeBtn');
+
+    modalTitle.textContent = `${vendor.name || 'Service'} - Details`;
+    
+    // Safe data access with fallbacks
+    const mealTypes = vendor.mealTypes ? vendor.mealTypes.join(', ') : 'Lunch, Dinner';
+    const dietaryOptions = vendor.dietaryOptions ? vendor.dietaryOptions.join(', ') : 'Vegetarian';
+    const price = vendor.priceRange?.monthly?.min || vendor.price || 2500;
+    const cuisineType = vendor.cuisineType || 'multi-cuisine';
+    const location = vendor.location?.address || vendor.location?.city || vendor.area || 'N/A';
+    const rating = vendor.rating || 'No ratings yet';
+    const totalOrders = vendor.totalOrders || vendor.ordersCount || 0;
+    const description = vendor.description || 'Delicious home-cooked meals with authentic flavors.';
+
+    modalContent.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+            <div>
+                <h4>Service Information</h4>
+                <p><strong>Cuisine:</strong> ${formatCuisineType(cuisineType)}</p>
+                <p><strong>Meal Types:</strong> ${mealTypes}</p>
+                <p><strong>Dietary Options:</strong> ${dietaryOptions}</p>
+                <p><strong>Monthly Price:</strong> ₹${price}</p>
+                <p><strong>Minimum Subscription:</strong> ${vendor.subscriptionSettings?.minSubscriptionDays || 15} days</p>
+                <p><strong>Location:</strong> ${location}</p>
+            </div>
+            
+            <div>
+                <h4>Service Features</h4>
+                ${vendor.features && vendor.features.length > 0 ? 
+                    vendor.features.map(feature => `
+                        <p><i class="fas fa-check" style="color: var(--success);"></i> ${formatFeature(feature)}</p>
+                    `).join('') : 
+                    `
+                    <p><i class="fas fa-check" style="color: var(--success);"></i> Fresh Ingredients</p>
+                    <p><i class="fas fa-check" style="color: var(--success);"></i> Hygienic Packaging</p>
+                    <p><i class="fas fa-check" style="color: var(--success);"></i> Timely Delivery</p>
+                    `
+                }
+                <p><strong>Rating:</strong> ${rating}</p>
+                <p><strong>Total Orders:</strong> ${totalOrders}</p>
+                <p><strong>Delivery Radius:</strong> ${vendor.deliveryRadius || 5} km</p>
+            </div>
+        </div>
+        
+        <div>
+            <h4>Description</h4>
+            <p>${description}</p>
+        </div>
+        
+        ${vendor.sampleMenu ? `
+            <div>
+                <h4>Sample Menu</h4>
+                <div style="background: var(--light); padding: 15px; border-radius: var(--border-radius);">
+                    ${vendor.sampleMenu}
+                </div>
+            </div>
+        ` : ''}
+    `;
+
+    // Update subscribe button
+    subscribeBtn.onclick = () => {
+        closeModal('serviceModal');
+        subscribeToVendor(vendor._id);
+    };
+    
+    document.getElementById('serviceModal').style.display = 'flex';
+}
+
+// Also update the vendor card click handler to use the fixed function
+function setupVendorCardClickHandlers() {
+    document.addEventListener('click', function(e) {
+        const vendorCard = e.target.closest('.service-card');
+        if (vendorCard) {
+            const vendorId = vendorCard.dataset.vendorId;
+            viewVendorDetails(vendorId);
+        }
+    });
+}
+
+// Call this after displaying vendors
+function displayVendors(vendors) {
+    const servicesGrid = document.getElementById('servicesGrid');
+    
+    if (vendors.length === 0) {
+        servicesGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--gray);">
+                <i class="fas fa-utensils" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <h3>No services found</h3>
+                <p>Try adjusting your filters or search terms</p>
+            </div>
+        `;
+        return;
+    }
+
+    servicesGrid.innerHTML = vendors.map(vendor => {
+        const imageUrl = vendor.images && vendor.images.length > 0 
+            ? vendor.images[0] 
+            : getDefaultImage(vendor.cuisineType);
+        
+        const mealTypes = vendor.mealTypes ? vendor.mealTypes.join(' + ') : 'Lunch + Dinner';
+        const price = vendor.priceRange?.monthly?.min || vendor.price || 2500;
+        const rating = vendor.rating || 4.0;
+        const reviewCount = vendor.reviewCount || 0;
+        
+        return `
+            <div class="service-card" data-vendor-id="${vendor._id}">
+                <div style="position: relative;">
+                    <img src="${imageUrl}" alt="${vendor.name}" class="service-image" onerror="this.src='https://images.unsplash.com/photo-1517244683847-7456b63c5969?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'">
+                    ${getVendorBadge(vendor)}
+                </div>
+                <div class="service-info">
+                    <h4 class="service-title">${vendor.name}</h4>
+                    <div class="service-meta">
+                        <div class="service-rating">
+                            <i class="fas fa-star"></i>
+                            ${rating.toFixed(1)} (${reviewCount} reviews)
+                        </div>
+                        <div class="service-price">₹${price}/mo</div>
+                    </div>
+                    <p class="service-description">${vendor.description || 'Delicious home-cooked meals with authentic flavors.'}</p>
+                    
+                    <div class="service-features">
+                        <div class="service-feature">
+                            <i class="fas fa-utensils"></i> ${mealTypes}
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-map-marker-alt"></i> ${vendor.location?.city || vendor.area || 'City'}
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-utensil-spoon"></i> ${formatCuisineType(vendor.cuisineType)}
+                        </div>
+                    </div>
+                    
+                    <div class="service-actions">
+                        <button class="btn btn-sm btn-outline" onclick="viewVendorDetails('${vendor._id}')">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                        <button class="btn btn-sm" onclick="subscribeToVendor('${vendor._id}')">
+                            <i class="fas fa-cart-plus"></i> Subscribe
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Setup click handlers for vendor cards
+    setupVendorCardClickHandlers();
+}
+
+// Update your DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuthentication();
+    setupMobileMenu();
+    setupEventListeners();
+    loadVendors();
+    setupVendorCardClickHandlers(); // Add this line
+});
+    // Display vendor details in modal
+    function displayVendorModal(vendor) {
+        const modalTitle = document.getElementById('modalServiceTitle');
+        const modalContent = document.getElementById('modalServiceContent');
+        const subscribeBtn = document.getElementById('modalSubscribeBtn');
+
+        modalTitle.textContent = `${vendor.name} - Service Details`;
+        
+        const mealTypes = vendor.mealTypes ? vendor.mealTypes.join(', ') : 'Lunch, Dinner';
+        const dietaryOptions = vendor.dietaryOptions ? vendor.dietaryOptions.join(', ') : 'Vegetarian';
+        const price = vendor.priceRange?.monthly?.min || 2500;
+
+        modalContent.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                <div>
+                    <h4>Service Information</h4>
+                    <p><strong>Cuisine:</strong> ${formatCuisineType(vendor.cuisineType)}</p>
+                    <p><strong>Meal Types:</strong> ${mealTypes}</p>
+                    <p><strong>Dietary Options:</strong> ${dietaryOptions}</p>
+                    <p><strong>Monthly Price:</strong> ₹${price}</p>
+                    <p><strong>Minimum Subscription:</strong> ${vendor.subscriptionSettings?.minSubscriptionDays || 15} days</p>
+                    <p><strong>Location:</strong> ${vendor.location?.address || 'N/A'}</p>
+                </div>
+                
+                <div>
+                    <h4>Service Features</h4>
+                    ${vendor.features && vendor.features.length > 0 ? 
+                        vendor.features.map(feature => `
+                            <p><i class="fas fa-check" style="color: var(--success);"></i> ${formatFeature(feature)}</p>
+                        `).join('') : 
+                        '<p>No special features listed</p>'
+                    }
+                    <p><strong>Rating:</strong> ${vendor.rating || 'No ratings yet'}</p>
+                    <p><strong>Total Orders:</strong> ${vendor.totalOrders || 0}</p>
+                    <p><strong>Delivery Radius:</strong> ${vendor.deliveryRadius || 5} km</p>
+                </div>
+            </div>
+            
+            ${vendor.description ? `
+                <div>
+                    <h4>Description</h4>
+                    <p>${vendor.description}</p>
+                </div>
+            ` : ''}
+        `;
+
+        // Update subscribe button
+        subscribeBtn.onclick = () => subscribeToVendor(vendor._id);
+        
+        document.getElementById('serviceModal').style.display = 'flex';
+    }
+
+    // Format feature for display
+    function formatFeature(feature) {
+        const features = {
+            'hygienic': 'Hygienic Packaging',
+            'customizable': 'Customizable Meals',
+            'timely-delivery': 'Timely Delivery',
+            'organic': 'Organic Ingredients',
+            'special-diet': 'Special Diet Options',
+            'bulk-orders': 'Bulk Orders Available'
+        };
+        return features[feature] || feature;
+    }
+
+ // Subscribe to vendor - DEBUG VERSION
+function subscribeToVendor(vendorId) {
+    console.log('🔄 Subscribe button clicked for vendor:', vendorId);
+    console.log('👤 Current user:', currentUser);
+    
+    if (!currentUser) {
+        console.log('❌ No user logged in');
+        showMessage('Please login to subscribe to a service', 'error');
+        // Redirect to login page
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 2000);
+        return;
+    }
+
+    console.log('✅ User is logged in, proceeding to subscription...');
+    
+    // For now, show a working modal with subscription options
+    showSubscriptionModal(vendorId);
+}
+// Subscribe to vendor
+function subscribeToVendor(vendorId) {
+    console.log('🔄 Subscribe button clicked for vendor:', vendorId);
+    console.log('👤 Current user:', currentUser);
+    
+    if (!currentUser) {
+        console.log('❌ No user logged in');
+        showMessage('Please login to subscribe to a service', 'error');
+        // Redirect to login page
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 2000);
+        return;
+    }
+
+    console.log('✅ User is logged in, proceeding to subscription...');
+    
+    // For now, show a working modal with subscription options
+    showSubscriptionModal(vendorId);
+}
+
+// CREATE SUBSCRIPTION FUNCTION - REAL VERSION (Updates Database)
+async function createSubscription(vendorId, days) {
+    console.log('📝 Creating REAL subscription:', { vendorId, days });
+    
+    if (!currentUser) {
+        showMessage('Please login first', 'error');
+        return;
+    }
+
+    try {
+        showMessage('Creating subscription...', 'info');
+        
+        // REAL API CALL - This will save to database
+        const response = await fetch(`${API_BASE}/subscriptions/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                vendorId: vendorId,
+                durationDays: days,
+                startDate: new Date().toISOString()
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log('✅ Subscription saved to database:', data.data);
+            showMessage(`✅ Successfully subscribed for ${days} days!`, 'success');
+            closeModal('subscriptionModal');
+            
+            // Redirect to subscriptions page
+            setTimeout(() => {
+                window.location.href = 'subscribers.html';
+            }, 1500);
+        } else {
+            throw new Error(data.message || 'Failed to create subscription');
+        }
+        
+    } catch (error) {
+        console.error('❌ Subscription error:', error);
+        showMessage('Failed to create subscription: ' + error.message, 'error');
+    }
+}
+// Format feature for display
+function formatFeature(feature) {
+    // ... your existing code continues ...
+}
+// Show subscription modal
+function showSubscriptionModal(vendorId) {
+    console.log('📋 Showing subscription modal for vendor:', vendorId);
+    
+    // Find the vendor details
+    const vendor = currentVendors.find(v => v._id === vendorId);
+    if (!vendor) {
+        showMessage('Vendor not found', 'error');
+        return;
+    }
+
+    // Create modal content
+    const modalContent = `
+        <div class="subscription-modal">
+            <h3>Subscribe to ${vendor.name}</h3>
+            <div class="subscription-info">
+                <p><strong>Cuisine:</strong> ${formatCuisineType(vendor.cuisineType)}</p>
+                <p><strong>Monthly Price:</strong> ₹${vendor.priceRange.monthly.min}</p>
+                <p><strong>Rating:</strong> ${vendor.rating}/5</p>
+            </div>
+            
+            <div class="subscription-options">
+                <h4>Choose Subscription Plan:</h4>
+                <div class="plan-options">
+                    <div class="plan-option" data-days="15">
+                        <h5>15 Days</h5>
+                        <p class="price">₹${Math.round(vendor.priceRange.monthly.min / 2)}</p>
+                        <button class="btn btn-sm" onclick="createSubscription('${vendorId}', 15)">Select</button>
+                    </div>
+                    <div class="plan-option" data-days="30">
+                        <h5>30 Days</h5>
+                        <p class="price">₹${vendor.priceRange.monthly.min}</p>
+                        <button class="btn btn-sm" onclick="createSubscription('${vendorId}', 30)">Select</button>
+                    </div>
+                    <div class="plan-option" data-days="60">
+                        <h5>60 Days</h5>
+                        <p class="price">₹${Math.round(vendor.priceRange.monthly.min * 1.8)}</p>
+                        <button class="btn btn-sm" onclick="createSubscription('${vendorId}', 60)">Select</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('subscriptionModal')">Cancel</button>
+            </div>
+        </div>
+    `;
+
+    // Create or update modal
+    let modal = document.getElementById('subscriptionModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'subscriptionModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeModal('subscriptionModal')">&times;</span>
+                <div id="subscriptionModalContent"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    document.getElementById('subscriptionModalContent').innerHTML = modalContent;
+    modal.style.display = 'flex';
+    
+    // Add CSS for subscription modal
+    addSubscriptionModalStyles();
+}
+// Add subscription modal styles
+function addSubscriptionModalStyles() {
+    if (document.getElementById('subscription-styles')) return;
+    
+    const styles = `
+        <style id="subscription-styles">
+            .subscription-modal {
+                max-width: 500px;
+            }
+            
+            .subscription-info {
+                background: var(--light);
+                padding: 1rem;
+                border-radius: var(--border-radius);
+                margin: 1rem 0;
+            }
+            
+            .plan-options {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 1rem;
+                margin: 1rem 0;
+            }
+            
+            .plan-option {
+                border: 2px solid var(--light-gray);
+                border-radius: var(--border-radius);
+                padding: 1rem;
+                text-align: center;
+                transition: var(--transition);
+                cursor: pointer;
+            }
+            
+            .plan-option:hover {
+                border-color: var(--primary);
+                transform: translateY(-2px);
+            }
+            
+            .plan-option.selected {
+                border-color: var(--primary);
+                background: var(--light);
+            }
+            
+            .plan-option h5 {
+                margin-bottom: 0.5rem;
+                color: var(--dark);
+            }
+            
+            .plan-option .price {
+                font-size: 1.25rem;
+                font-weight: bold;
+                color: var(--primary);
+                margin: 0.5rem 0;
+            }
+            
+            .modal-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 1rem;
+                margin-top: 1.5rem;
+                padding-top: 1rem;
+                border-top: 1px solid var(--light-gray);
+            }
+        </style>
+    `;
+    
+    document.head.insertAdjacentHTML('beforeend', styles);
+}
+
+    // Setup event listeners
+    function setupEventListeners() {
+        // Filter toggle
+        document.getElementById('filterToggle').addEventListener('click', function() {
+            document.getElementById('filterPanel').classList.toggle('active');
+        });
+        
+        // Filter option selection
+        document.querySelectorAll('.filter-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const group = this.closest('.filter-options');
+                group.querySelectorAll('.filter-option').forEach(sibling => {
+                    sibling.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // Apply filters button
+        document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+        
+        // Search input with debounce
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentFilters.search = e.target.value;
+                currentFilters.page = 1; // Reset to first page
+                loadVendors();
+            }, 500);
+        });
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    }
+
+    // Apply filters
+    function applyFilters() {
+        // Get active filter values
+        const cuisineFilter = document.querySelector('#cuisineFilter .filter-option.active');
+        const mealTypeFilter = document.querySelector('#mealTypeFilter .filter-option.active');
+        const priceFilter = document.querySelector('#priceFilter .filter-option.active');
+        const dietFilter = document.querySelector('#dietFilter .filter-option.active');
+        
+        // Update current filters
+        currentFilters.cuisineType = cuisineFilter?.dataset.value || 'all';
+        currentFilters.mealType = mealTypeFilter?.dataset.value || 'all';
+        currentFilters.dietType = dietFilter?.dataset.value || 'all';
+        
+        // Handle price range
+        const priceValue = priceFilter?.dataset.value;
+        if (priceValue && priceValue !== 'all') {
+            const [min, max] = priceValue.split('-').map(Number);
+            currentFilters.priceMin = min;
+            currentFilters.priceMax = max;
+        } else {
+            currentFilters.priceMin = '';
+            currentFilters.priceMax = '';
+        }
+        
+        currentFilters.page = 1; // Reset to first page
+        loadVendors();
+        
+        // Close filter panel on mobile
+        if (window.innerWidth <= 768) {
+            document.getElementById('filterPanel').classList.remove('active');
+        }
+    }
+
+    // Function to close modal
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Show message
+    function showMessage(message, type) {
+        const messageContainer = document.getElementById('messageContainer');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}`;
+        messageDiv.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        messageContainer.appendChild(messageDiv);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.parentNode.removeChild(messageDiv);
+            }
+        }, 5000);
+    }
+
+    // Logout function
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+    }
+
+    // Demo data fallback
+    function displayDemoVendors() {
+        const demoVendors = [
+            {
+                _id: 'demo1',
+                name: 'South Delight',
+                description: 'Authentic South Indian meals with traditional recipes. Daily changing menu with variety of dishes.',
+                cuisineType: 'south-indian',
+                mealTypes: ['lunch', 'dinner'],
+                dietaryOptions: ['vegetarian'],
+                priceRange: { monthly: { min: 2800, max: 3200 } },
+                rating: 4.8,
+                reviewCount: 124,
+                totalOrders: 350,
+                location: { city: 'Bangalore' },
+                features: ['hygienic', 'customizable', 'timely-delivery']
+            },
+            {
+                _id: 'demo2',
+                name: 'Mama\'s Kitchen',
+                description: 'Home-style North Indian meals with a variety of dishes. Fresh and hygienic food prepared daily.',
+                cuisineType: 'north-indian',
+                mealTypes: ['lunch'],
+                dietaryOptions: ['vegetarian'],
+                priceRange: { monthly: { min: 2500, max: 2800 } },
+                rating: 4.5,
+                reviewCount: 98,
+                totalOrders: 280,
+                location: { city: 'Bangalore' },
+                features: ['hygienic', 'timely-delivery']
+            }
+        ];
+        
+        currentVendors = demoVendors;
+        displayVendors(currentVendors);
+        updateResultsCount();
+        showMessage('Using demo data - API not connected', 'info');
+    }
+</script>
+</body>
+</html>

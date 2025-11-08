@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiffin Service Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .welcome-section h1 {
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .welcome-section p {
+            color: #718096;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .payment-due {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .payment-due h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .payment-due p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .payment-due .amount {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #718096;
+        }
+
+        .tab.active {
+            background: #4A00E0;
+            color: white;
+        }
+
+        .subscriptions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .subscription-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .subscription-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .subscription-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .subscription-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .rating {
+            color: #f6ad55;
+            font-size: 16px;
+        }
+
+        .subscription-description {
+            color: #718096;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .subscription-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-manage {
+            background: #4A00E0;
+            color: white;
+        }
+
+        .btn-manage:hover {
+            background: #3a00b3;
+        }
+
+        .btn-message {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-message:hover {
+            background: #cbd5e0;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 30px 0;
+        }
+
+        .payment-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .payment-section h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .payment-method {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            border-color: #4A00E0;
+            transform: scale(1.03);
+        }
+
+        .payment-method.selected {
+            border-color: #4A00E0;
+            background: rgba(74, 0, 224, 0.05);
+        }
+
+        .method-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .method-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .payment-form {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #4A00E0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .pay-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, #4A00E0, #8E2DE2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(74, 0, 224, 0.3);
+            margin-top: 20px;
+        }
+
+        .pay-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(74, 0, 224, 0.4);
+        }
+
+        .pay-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .upi-info {
+            text-align: center;
+            padding: 30px;
+            background: #f0f8ff;
+            border-radius: 10px;
+            border: 2px dashed #4A00E0;
+        }
+
+        .upi-info p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .upi-apps {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .upi-app {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upi-app:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .receipt-section {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .receipt-header h2 {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .receipt-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .receipt-item {
+            margin-bottom: 15px;
+        }
+
+        .receipt-label {
+            font-weight: 600;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+
+        .receipt-value {
+            font-size: 16px;
+            color: #2d3748;
+        }
+
+        .receipt-amount {
+            font-size: 22px;
+            font-weight: 700;
+            color: #4A00E0;
+        }
+
+        .receipt-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-download {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: #2f855a;
+        }
+
+        .btn-share {
+            background: #3182ce;
+            color: white;
+        }
+
+        .btn-share:hover {
+            background: #2b6cb0;
+        }
+
+        .btn-back {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-back:hover {
+            background: #cbd5e0;
+        }
+
+        @media (max-width: 768px) {
+            .subscriptions {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+            
+            .receipt-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .subscription-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .upi-apps {
+                gap: 15px;
+            }
+            
+            .upi-app {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Dashboard Section -->
+        <section id="dashboard">
+            <header>
+                <div class="welcome-section">
+                    <h1>Welcome back, Rahul!</h1>
+                    <p>You have 2 active tiffin subscriptions. Your next payment of ₹1,500 is due in 3 days.</p>
+                </div>
+                <div class="payment-due">
+                    <div>
+                        <h3>Payment Due</h3>
+                        <p>Next payment in 3 days</p>
+                    </div>
+                    <div class="amount">₹1,500</div>
+                </div>
+            </header>
+
+            <div class="tabs">
+                <div class="tab active">Active</div>
+                <div class="tab">Paused</div>
+                <div class="tab">Cancelled</div>
+            </div>
+
+            <div class="subscriptions">
+                <div class="subscription-card">
+                    <div class="subscription-header">
+                        <div class="subscription-title">South Delight</div>
+                        <div class="rating">★★★★★ (4.8)</div>
+                    </div>
+                    <div class="subscription-description">
+                        Authentic South Indian meals with traditional recipes. Daily changing menu with variety.
+                    </div>
+                    <div class="subscription-actions">
+                        <button class="btn btn-manage" onclick="showPaymentSection('South Delight')">Pay Money</button>
+                        <button class="btn btn-message">Send Message</button>
+                    </div>
+                </div>
+
+                <div class="subscription-card">
+                    <div class="subscription-header">
+                        <div class="subscription-title">Mama's Kitchen</div>
+                        <div class="rating">★★★★☆ (4.2)</div>
+                    </div>
+                    <div class="subscription-description">
+                        Home-style North Indian meals with a variety of dishes. Fresh and hygienic food.
+                    </div>
+                    <div class="subscription-actions">
+                        <button class="btn btn-manage" onclick="showPaymentSection('Mama\'s Kitchen')">Pay Money</button>
+                        <button class="btn btn-message">Send Message</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Section -->
+        <section id="paymentSection" class="payment-section" style="display: none;">
+            <h2>Complete Your Payment</h2>
+            <p style="margin-bottom: 20px; color: #718096;">Select your preferred payment method to continue</p>
+            
+            <div class="payment-methods">
+                <div class="payment-method" data-method="upi" onclick="selectPaymentMethod(this)">
+                    <div class="method-icon">📱</div>
+                    <div class="method-name">UPI</div>
+                </div>
+                <div class="payment-method" data-method="netbanking" onclick="selectPaymentMethod(this)">
+                    <div class="method-icon">🏦</div>
+                    <div class="method-name">Net Banking</div>
+                </div>
+                <div class="payment-method" data-method="card" onclick="selectPaymentMethod(this)">
+                    <div class="method-icon">💳</div>
+                    <div class="method-name">Credit/Debit Card</div>
+                </div>
+                <div class="payment-method" data-method="wallet" onclick="selectPaymentMethod(this)">
+                    <div class="method-icon">💰</div>
+                    <div class="method-name">Wallet</div>
+                </div>
+            </div>
+            
+            <!-- UPI Payment Form -->
+            <div class="payment-form" id="upiForm">
+                <div class="upi-info">
+                    <p>Click "Pay Now" to complete your UPI payment</p>
+                    <p>You will be redirected to your UPI app</p>
+                    <div class="upi-apps">
+                        <div class="upi-app" title="Google Pay">📱</div>
+                        <div class="upi-app" title="PhonePe">📲</div>
+                        <div class="upi-app" title="Paytm">💸</div>
+                        <div class="upi-app" title="BHIM UPI">🏦</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Net Banking Form -->
+            <div class="payment-form" id="netbankingForm">
+                <div class="form-group">
+                    <label for="bankName">Select Bank</label>
+                    <select id="bankName">
+                        <option value="">Choose your bank</option>
+                        <option value="sbi">State Bank of India</option>
+                        <option value="hdfc">HDFC Bank</option>
+                        <option value="icici">ICICI Bank</option>
+                        <option value="axis">Axis Bank</option>
+                        <option value="pnb">Punjab National Bank</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="accountNumber">Account Number</label>
+                    <input type="text" id="accountNumber" placeholder="Enter your account number">
+                </div>
+                <div class="form-group">
+                    <label for="ifscCode">IFSC Code</label>
+                    <input type="text" id="ifscCode" placeholder="Enter IFSC code">
+                </div>
+                <div class="form-group">
+                    <label for="accountHolder">Account Holder Name</label>
+                    <input type="text" id="accountHolder" placeholder="Enter account holder name">
+                </div>
+            </div>
+            
+            <!-- Card Payment Form -->
+            <div class="payment-form" id="cardForm">
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expiryDate">Expiry Date</label>
+                        <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="cvv">CVV</label>
+                        <input type="password" id="cvv" placeholder="123" maxlength="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="cardHolder">Card Holder Name</label>
+                    <input type="text" id="cardHolder" placeholder="Enter card holder name">
+                </div>
+                <div class="form-group">
+                    <label for="cardType">Card Type</label>
+                    <select id="cardType">
+                        <option value="">Select card type</option>
+                        <option value="credit">Credit Card</option>
+                        <option value="debit">Debit Card</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Wallet Payment Form -->
+            <div class="payment-form" id="walletForm">
+                <div class="form-group">
+                    <label for="walletType">Select Wallet</label>
+                    <select id="walletType">
+                        <option value="">Choose your wallet</option>
+                        <option value="paytm">Paytm Wallet</option>
+                        <option value="phonepe">PhonePe Wallet</option>
+                        <option value="amazon">Amazon Pay</option>
+                        <option value="mobikwik">MobiKwik</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="walletNumber">Mobile Number</label>
+                    <input type="text" id="walletNumber" placeholder="Enter registered mobile number">
+                </div>
+               
+                <div class="form-group">
+                    <label for="walletBalance">Available Balance</label>
+                    <input type="text" id="walletBalance" placeholder="₹50000" readonly>
+                </div>
+            </div>
+            
+            <button class="pay-btn" id="payButton" onclick="processPayment()">Pay ₹1,500 Now</button>
+        </section>
+
+        <!-- Receipt Section -->
+        <section id="receiptSection" class="receipt-section">
+            <div class="receipt-header">
+                <h2>Payment Successful!</h2>
+                <p>Your payment has been processed successfully</p>
+            </div>
+            
+            <div class="receipt-details">
+                <div>
+                    <div class="receipt-item">
+                        <div class="receipt-label">Transaction ID</div>
+                        <div class="receipt-value">TXN789456123</div>
+                    </div>
+                    <div class="receipt-item">
+                        <div class="receipt-label">Date & Time</div>
+                        <div class="receipt-value">March 15, 2023 at 14:30</div>
+                    </div>
+                    <div class="receipt-item">
+                        <div class="receipt-label">Payment Method</div>
+                        <div class="receipt-value" id="receiptPaymentMethod">UPI</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="receipt-item">
+                        <div class="receipt-label">Paid To</div>
+                        <div class="receipt-value" id="receiptPaidTo">South Delight Tiffin Service</div>
+                    </div>
+                    <div class="receipt-item">
+                        <div class="receipt-label">Subscription Plan</div>
+                        <div class="receipt-value">Monthly Full Tiffin</div>
+                    </div>
+                    <div class="receipt-item">
+                        <div class="receipt-label">Amount Paid</div>
+                        <div class="receipt-value receipt-amount">₹1,500</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="receipt-actions">
+                <button class="btn btn-download">Download Receipt</button>
+                <button class="btn btn-share">Share Receipt</button>
+                <button class="btn btn-back" onclick="showDashboard()">Back to Dashboard</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let selectedPaymentMethod = null;
+        let currentSubscription = null;
+        
+        function showPaymentSection(subscription) {
+            currentSubscription = subscription;
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('paymentSection').style.display = 'block';
+            document.getElementById('receiptSection').style.display = 'none';
+            
+            // Reset payment forms
+            document.querySelectorAll('.payment-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.classList.remove('selected');
+            });
+            selectedPaymentMethod = null;
+            
+            // Reset pay button
+            document.getElementById('payButton').textContent = 'Pay ₹1,500 Now';
+            document.getElementById('payButton').disabled = false;
+        }
+        
+        function selectPaymentMethod(element) {
+            // Remove selected class from all payment methods
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked method
+            element.classList.add('selected');
+            
+            // Store selected payment method
+            selectedPaymentMethod = element.getAttribute('data-method');
+            
+            // Hide all payment forms
+            document.querySelectorAll('.payment-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            // Show the selected payment form
+            document.getElementById(`${selectedPaymentMethod}Form`).style.display = 'block';
+        }
+        
+        function processPayment() {
+            // Check if payment method is selected
+            if (!selectedPaymentMethod) {
+                alert('Please select a payment method');
+                return;
+            }
+            
+            // For payment methods other than UPI, validate form
+            if (selectedPaymentMethod !== 'upi') {
+                if (!validateForm()) {
+                    return;
+                }
+            }
+            
+            // Show loading state
+            const payButton = document.getElementById('payButton');
+            payButton.textContent = 'Processing...';
+            payButton.disabled = true;
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                // Update receipt details
+                document.getElementById('receiptPaymentMethod').textContent = 
+                    selectedPaymentMethod === 'netbanking' ? 'Net Banking' : 
+                    selectedPaymentMethod === 'card' ? 'Credit/Debit Card' : 
+                    selectedPaymentMethod === 'wallet' ? 'Wallet' : 'UPI';
+                
+                document.getElementById('receiptPaidTo').textContent = currentSubscription;
+                
+                // Show receipt section
+                document.getElementById('dashboard').style.display = 'none';
+                document.getElementById('paymentSection').style.display = 'none';
+                document.getElementById('receiptSection').style.display = 'block';
+                
+                // Reset payment button for next time
+                payButton.textContent = 'Pay ₹1,500 Now';
+                payButton.disabled = false;
+            }, 1500);
+        }
+        
+        function validateForm() {
+            // Basic validation for each payment method
+            switch(selectedPaymentMethod) {
+                case 'netbanking':
+                    const bankName = document.getElementById('bankName').value;
+                    const accountNumber = document.getElementById('accountNumber').value;
+                    const ifscCode = document.getElementById('ifscCode').value;
+                    const accountHolder = document.getElementById('accountHolder').value;
+                    
+                    if (!bankName) {
+                        alert('Please select your bank');
+                        return false;
+                    }
+                    
+                    if (!accountNumber || accountNumber.length < 10) {
+                        alert('Please enter a valid account number');
+                        return false;
+                    }
+                    
+                    if (!ifscCode || ifscCode.length !== 11) {
+                        alert('Please enter a valid IFSC code');
+                        return false;
+                    }
+                    
+                    if (!accountHolder) {
+                        alert('Please enter account holder name');
+                        return false;
+                    }
+                    break;
+                    
+                case 'card':
+                    const cardNumber = document.getElementById('cardNumber').value;
+                    const expiryDate = document.getElementById('expiryDate').value;
+                    const cvv = document.getElementById('cvv').value;
+                    const cardHolder = document.getElementById('cardHolder').value;
+                    const cardType = document.getElementById('cardType').value;
+                    
+                    if (!cardNumber || cardNumber.replace(/\s/g, '').length !== 16) {
+                        alert('Please enter a valid card number');
+                        return false;
+                    }
+                    
+                    if (!expiryDate || !/^\d{2}\/\d{2}$/.test(expiryDate)) {
+                        alert('Please enter a valid expiry date (MM/YY)');
+                        return false;
+                    }
+                    
+                    if (!cvv || cvv.length !== 3) {
+                        alert('Please enter a valid CVV');
+                        return false;
+                    }
+                    
+                    if (!cardHolder) {
+                        alert('Please enter card holder name');
+                        return false;
+                    }
+                    
+                    if (!cardType) {
+                        alert('Please select card type');
+                        return false;
+                    }
+                    break;
+                    
+                case 'wallet':
+                    const walletType = document.getElementById('walletType').value;
+                    const walletNumber = document.getElementById('walletNumber').value;
+                    
+                    if (!walletType) {
+                        alert('Please select your wallet');
+                        return false;
+                    }
+                    
+                    if (!walletNumber || walletNumber.length !== 10) {
+                        alert('Please enter a valid mobile number');
+                        return false;
+                    }
+                    break;
+            }
+            
+            return true;
+        }
+        
+        function showDashboard() {
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('paymentSection').style.display = 'none';
+            document.getElementById('receiptSection').style.display = 'none';
+            
+            // Reset payment method selection
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.classList.remove('selected');
+            });
+            document.querySelectorAll('.payment-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            selectedPaymentMethod = null;
+            currentSubscription = null;
+        }
+        
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // Format card number with spaces
+        document.getElementById('cardNumber')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = '';
+            
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            
+            e.target.value = formattedValue;
+        });
+        
+        // Format expiry date
+        document.getElementById('expiryDate')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>

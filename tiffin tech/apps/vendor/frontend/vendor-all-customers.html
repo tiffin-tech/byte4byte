@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Customers - TiffinTech</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .profile-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+    .profile-modal-content { background-color: white; margin: 5% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; }
+    .custom-notification { position: fixed; top: 20px; right: 20px; z-index: 1000; padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <nav class="bg-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between">
+        <div class="flex space-x-7">
+          <div><a href="#" class="flex items-center py-4"><span class="font-semibold text-green-600 text-2xl">TiffinTech</span></a></div>
+          <div class="hidden md:flex items-center space-x-1">
+            <a href="#" class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300">Dashboard</a>
+            <a href="#" class="py-4 px-2 text-green-600 font-semibold border-b-2 border-green-600">Customers</a>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-3">
+          <button id="profile-btn" class="p-2 rounded-full hover:bg-gray-200 transition duration-300">
+            <i class="fas fa-user-circle text-2xl text-green-600"></i>
+          </button>
+          <button id="logout-btn" class="py-2 px-4 font-medium text-gray-500 rounded hover:bg-gray-200 transition duration-300">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Profile Modal -->
+  <div id="profile-modal" class="profile-modal">
+    <div class="profile-modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">Your Profile</h2>
+        <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="vendor-profile-details">
+        <div class="animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div class="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+          <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-8">
+    <div class="max-w-6xl mx-auto px-6">
+      <div>
+        <h1 class="text-3xl font-bold mb-2">All Customers</h1>
+        <p class="text-green-100">Manage your customer relationships and subscriptions</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    <!-- Customer Statistics -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Customer Statistics</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-green-50 p-4 rounded-lg text-center">
+          <div class="text-2xl font-bold text-green-600" id="totalCustomers">0</div>
+          <div class="text-sm text-gray-600">Total Subscribers</div>
+        </div>
+        <div class="bg-blue-50 p-4 rounded-lg text-center">
+          <div class="text-2xl font-bold text-blue-600" id="activeCustomers">0</div>
+          <div class="text-sm text-gray-600">Active Subscriptions</div>
+        </div>
+        <div class="bg-yellow-50 p-4 rounded-lg text-center">
+          <div class="text-2xl font-bold text-yellow-600" id="pendingCustomers">0</div>
+          <div class="text-sm text-gray-600">Pending Payments</div>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg text-center">
+          <div class="text-2xl font-bold text-purple-600" id="monthlyRevenue">₹0</div>
+          <div class="text-sm text-gray-600">Monthly Revenue</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Status -->
+    <div id="apiStatus" class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-info-circle text-blue-400"></i>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-blue-800">API Status</h3>
+          <div class="mt-2 text-sm text-blue-700">
+            <p id="apiStatusText">Checking backend connection...</p>
+          </div>
+          <div class="mt-2">
+            <button id="testEndpoints" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+              <i class="fas fa-bug mr-1"></i> Test All Endpoints
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Search Customers</label>
+          <div class="flex">
+            <input type="text" id="searchInput" placeholder="Search by name or phone..." class="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            <button id="searchButton" class="bg-green-600 text-white px-4 py-2 rounded-r-md hover:bg-green-700 transition duration-300">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select id="statusFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option value="all">All Customers</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="pending">Pending Payment</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Actions</label>
+          <button id="refreshData" class="w-full bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+            <i class="fas fa-sync-alt mr-2"></i> Refresh Data
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200" id="customersTableBody">
+            <tr id="loadingRow">
+              <td colspan="5" class="px-6 py-8 text-center">
+                <div class="flex justify-center items-center">
+                  <i class="fas fa-spinner fa-spin text-2xl text-green-600 mr-3"></i>
+                  <span class="text-gray-600">Loading customers...</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Configuration
+    const API_BASE = 'http://localhost:6999/api';
+    let currentVendorId = null;
+    let allCustomers = [];
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        checkVendorAuthentication();
+        setupEventListeners();
+        checkBackendConnection();
+    });
+
+    // Check backend connection
+    async function checkBackendConnection() {
+        try {
+            const response = await fetch(`${API_BASE}/health`);
+            if (response.ok) {
+                document.getElementById('apiStatusText').innerHTML = 
+                    '✅ Backend is running!<br><span class="text-xs">However, customer/subscription endpoints are not implemented yet.</span>';
+            } else {
+                document.getElementById('apiStatusText').textContent = '❌ Backend connection failed';
+            }
+        } catch (error) {
+            document.getElementById('apiStatusText').textContent = '❌ Cannot connect to backend';
+        }
+    }
+
+    // Test all API endpoints
+    async function testAllEndpoints() {
+        const endpoints = [
+            '/subscriptions',
+            '/subscriptions/vendor',
+            '/customers', 
+            '/vendors',
+            '/orders',
+            '/payments'
+        ];
+
+        const statusText = document.getElementById('apiStatusText');
+        statusText.innerHTML = 'Testing endpoints...<br>';
+
+        for (const endpoint of endpoints) {
+            try {
+                const token = localStorage.getItem('token');
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                
+                const response = await fetch(`${API_BASE}${endpoint}`, { headers });
+                const status = response.ok ? '✅' : '❌';
+                statusText.innerHTML += `${status} ${endpoint}: ${response.status}<br>`;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(`✅ ${endpoint} response:`, data);
+                }
+            } catch (error) {
+                statusText.innerHTML += `❌ ${endpoint}: ${error.message}<br>`;
+            }
+        }
+
+        statusText.innerHTML += '<br><strong>Solution:</strong> You need to implement vendor-specific subscription endpoints in your backend.';
+    }
+
+    // Check if vendor is authenticated
+    async function checkVendorAuthentication() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (!token || !user.id) {
+            console.log('User not authenticated, showing demo data');
+            currentVendorId = 'demo-vendor-id';
+            showNotification('Using demo data - Please login for real data', 'info');
+            displayDemoCustomers();
+            return;
+        }
+        
+        currentVendorId = user.id;
+        console.log('👤 Vendor ID:', currentVendorId);
+        
+        // Try to load real data
+        loadVendorCustomers();
+    }
+
+    // Load customers - try multiple strategies
+    async function loadVendorCustomers() {
+        showNotification('Attempting to load real customer data...', 'info');
+        
+        // Strategy 1: Try to get all subscriptions and filter by vendor
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE}/subscriptions`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('📦 All subscriptions:', data);
+                
+                if (data.success && data.data) {
+                    // Filter subscriptions for current vendor
+                    const vendorSubscriptions = data.data.filter(sub => 
+                        sub.vendorId === currentVendorId || 
+                        sub.vendorId?._id === currentVendorId
+                    );
+                    
+                    if (vendorSubscriptions.length > 0) {
+                        await processSubscriptions(vendorSubscriptions);
+                        showNotification(`Loaded ${vendorSubscriptions.length} subscriptions from database`, 'success');
+                        return;
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('Strategy 1 failed:', error.message);
+        }
+
+        // Strategy 2: Try to get vendor profile which might include customers
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE}/vendors/${currentVendorId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('📦 Vendor data:', data);
+                
+                if (data.success && data.data) {
+                    const vendor = data.data;
+                    // Check if vendor has customers/subscriptions data
+                    if (vendor.customers || vendor.subscriptions) {
+                        showNotification('Found vendor data but no customer information', 'info');
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('Strategy 2 failed:', error.message);
+        }
+
+        // Strategy 3: Try to get all customers (if endpoint exists)
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE}/customers`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('📦 All customers:', data);
+                
+                if (data.success && data.data) {
+                    // Filter customers by vendor (if customer has vendorId field)
+                    const vendorCustomers = data.data.filter(customer => 
+                        customer.vendorId === currentVendorId
+                    );
+                    
+                    if (vendorCustomers.length > 0) {
+                        displayCustomers(vendorCustomers);
+                        updateCustomerStats(vendorCustomers);
+                        showNotification(`Loaded ${vendorCustomers.length} customers from database`, 'success');
+                        return;
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('Strategy 3 failed:', error.message);
+        }
+
+        // If all strategies fail, show demo data
+        showNotification('Real customer data unavailable. Using demo data.', 'warning');
+        displayDemoCustomers();
+    }
+
+    // Process subscriptions to create customer data
+    async function processSubscriptions(subscriptions) {
+        allCustomers = [];
+
+        // Group subscriptions by customer
+        const customersMap = new Map();
+        
+        subscriptions.forEach(subscription => {
+            const customerId = subscription.userId || subscription.customerId;
+            
+            if (!customersMap.has(customerId)) {
+                customersMap.set(customerId, {
+                    id: customerId,
+                    name: subscription.customerName || `Customer ${customerId?.slice(-4) || 'Unknown'}`,
+                    email: subscription.customerEmail || 'email@example.com',
+                    phone: subscription.customerPhone || '+91 XXXXXXXX',
+                    subscriptions: [],
+                    activeSubscriptions: 0,
+                    totalAmount: 0
+                });
+            }
+            
+            const customer = customersMap.get(customerId);
+            customer.subscriptions.push(subscription);
+            
+            if (subscription.status === 'active') {
+                customer.activeSubscriptions++;
+            }
+            
+            customer.totalAmount += subscription.totalAmount || subscription.price || 0;
+        });
+
+        allCustomers = Array.from(customersMap.values());
+        displayCustomers(allCustomers);
+        updateCustomerStats(allCustomers);
+    }
+
+    // Display customers in the table
+    function displayCustomers(customers) {
+        const tableBody = document.getElementById('customersTableBody');
+        
+        if (customers.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center">
+                        <div class="text-center text-gray-500">
+                            <i class="fas fa-users text-4xl mb-4 opacity-50"></i>
+                            <p class="text-lg">No customers found</p>
+                            <p class="text-sm mt-2">Students will appear here when they subscribe to your service</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tableBody.innerHTML = customers.map(customer => {
+            const activeSubscription = customer.subscriptions.find(sub => sub.status === 'active');
+            const subscription = activeSubscription || customer.subscriptions[0];
+            
+            // Get initials for avatar
+            const initials = customer.name ? customer.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'CU';
+            
+            // Determine status and styling
+            let status = 'Inactive';
+            let statusClass = 'bg-red-100 text-red-800';
+            
+            if (customer.activeSubscriptions > 0) {
+                status = 'Active';
+                statusClass = 'bg-green-100 text-green-800';
+            } else if (subscription && subscription.status === 'pending') {
+                status = 'Pending';
+                statusClass = 'bg-yellow-100 text-yellow-800';
+            }
+
+            // Get plan details
+            const planName = subscription ? 
+                `${subscription.durationDays || 30} Days` : 
+                'No active plan';
+            const planPrice = subscription ? 
+                `₹${subscription.totalAmount || subscription.price || 0}` : 
+                '₹0';
+
+            return `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                    <span class="text-green-600 font-medium text-sm">${initials}</span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${customer.name}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${customer.phone}</div>
+                        <div class="text-sm text-gray-500">${customer.email}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${planName}</div>
+                        <div class="text-sm text-gray-500">${planPrice}</div>
+                        ${customer.subscriptions.length > 1 ? 
+                            `<div class="text-xs text-blue-600">+${customer.subscriptions.length - 1} more</div>` : ''
+                        }
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                            ${status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button class="text-green-600 hover:text-green-900 mr-3" onclick="viewCustomerDetails('${customer.id}')">
+                            <i class="fas fa-eye mr-1"></i> View
+                        </button>
+                        <button class="text-blue-600 hover:text-blue-900" onclick="messageCustomer('${customer.id}')">
+                            <i class="fas fa-comment mr-1"></i> Message
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Update customer statistics
+    function updateCustomerStats(customers) {
+        const totalCustomers = customers.length;
+        const activeCustomers = customers.filter(c => c.activeSubscriptions > 0).length;
+        const pendingCustomers = customers.filter(c => 
+            c.subscriptions.some(sub => sub.status === 'pending')
+        ).length;
+        const monthlyRevenue = customers.reduce((sum, customer) => sum + customer.totalAmount, 0);
+
+        document.getElementById('totalCustomers').textContent = totalCustomers;
+        document.getElementById('activeCustomers').textContent = activeCustomers;
+        document.getElementById('pendingCustomers').textContent = pendingCustomers;
+        document.getElementById('monthlyRevenue').textContent = `₹${monthlyRevenue}`;
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        
+        if (searchInput && searchButton) {
+            const performSearch = () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                const filteredCustomers = allCustomers.filter(customer => 
+                    customer.name.toLowerCase().includes(searchTerm) ||
+                    customer.phone.includes(searchTerm) ||
+                    customer.email.toLowerCase().includes(searchTerm)
+                );
+                displayCustomers(filteredCustomers);
+            };
+            
+            searchInput.addEventListener('input', performSearch);
+            searchButton.addEventListener('click', performSearch);
+        }
+
+        // Refresh data
+        document.getElementById('refreshData').addEventListener('click', () => {
+            loadVendorCustomers();
+        });
+
+        // Test endpoints
+        document.getElementById('testEndpoints').addEventListener('click', testAllEndpoints);
+
+        // Profile modal
+        document.getElementById('profile-btn').addEventListener('click', showProfileModal);
+        document.getElementById('close-profile-modal').addEventListener('click', hideProfileModal);
+        
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', logout);
+    }
+
+    // Demo data fallback
+    function displayDemoCustomers() {
+        const demoCustomers = [
+            {
+                id: 'demo1',
+                name: 'Rahul Agarwal',
+                email: 'rahul@example.com',
+                phone: '+91 9876543210',
+                subscriptions: [
+                    { status: 'active', durationDays: 30, totalAmount: 2500, planType: 'Monthly Veg' }
+                ],
+                activeSubscriptions: 1,
+                totalAmount: 2500
+            },
+            {
+                id: 'demo2',
+                name: 'Priya Singh', 
+                email: 'priya@example.com',
+                phone: '+91 8765432109',
+                subscriptions: [
+                    { status: 'pending', durationDays: 30, totalAmount: 3000, planType: 'Monthly Non-Veg' }
+                ],
+                activeSubscriptions: 0,
+                totalAmount: 3000
+            },
+            {
+                id: 'demo3',
+                name: 'Amit Kumar',
+                email: 'amit@example.com',
+                phone: '+91 7654321098',
+                subscriptions: [
+                    { status: 'active', durationDays: 15, totalAmount: 1500, planType: 'Bi-weekly Veg' }
+                ],
+                activeSubscriptions: 1,
+                totalAmount: 1500
+            }
+        ];
+        
+        allCustomers = demoCustomers;
+        displayCustomers(allCustomers);
+        updateCustomerStats(allCustomers);
+    }
+
+    // Utility functions
+    function showNotification(message, type = 'success') {
+        const existingNotification = document.querySelector('.custom-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `custom-notification ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        showNotification('Logged out successfully!', 'success');
+        setTimeout(() => {
+            location.reload();
+        }, 1500);
+    }
+
+    function showProfileModal() {
+        const modal = document.getElementById('profile-modal');
+        const details = document.getElementById('vendor-profile-details');
+        
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        details.innerHTML = `
+            <div class="space-y-3">
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Name</label>
+                    <p class="text-gray-900">${user.name || 'Not set'}</p>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Email</label>
+                    <p class="text-gray-900">${user.email || 'Not set'}</p>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Phone</label>
+                    <p class="text-gray-900">${user.phone || 'Not set'}</p>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-500">User Type</label>
+                    <p class="text-gray-900">${user.role || user.userType || 'Vendor'}</p>
+                </div>
+            </div>
+        `;
+        
+        modal.style.display = 'block';
+    }
+
+    function hideProfileModal() {
+        document.getElementById('profile-modal').style.display = 'none';
+    }
+
+    function viewCustomerDetails(customerId) {
+        const customer = allCustomers.find(c => c.id === customerId);
+        if (customer) {
+            const subscriptionDetails = customer.subscriptions.map(sub => 
+                `- ${sub.durationDays || 30} days, ₹${sub.totalAmount || sub.price || 0}, ${sub.status}`
+            ).join('\n');
+            
+            alert(`Customer Details:\n\nName: ${customer.name}\nEmail: ${customer.email}\nPhone: ${customer.phone}\nActive Subscriptions: ${customer.activeSubscriptions}\n\nSubscriptions:\n${subscriptionDetails}`);
+        }
+    }
+
+    function messageCustomer(customerId) {
+        const customer = allCustomers.find(c => c.id === customerId);
+        if (customer) {
+            alert(`Start chat with ${customer.name}\n\nThis would open a messaging interface to communicate with the customer.`);
+        }
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('profile-modal');
+        if (event.target === modal) {
+            hideProfileModal();
+        }
+    });
+  </script>
+</body>
+</html>

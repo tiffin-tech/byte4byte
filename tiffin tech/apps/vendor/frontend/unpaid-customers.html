@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unpaid Customers - TiffinTech</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4 flex justify-between">
+      <div class="flex items-center space-x-6">
+        <a href="index.html" class="flex items-center py-4">
+          <span class="font-semibold text-green-600 text-2xl">TiffinTech</span>
+        </a>
+        <a href="browse-vendors.html" class="hidden md:inline-block py-4 px-2 text-gray-600 font-medium hover:text-green-500">Browse</a>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="vendor-dashboard.html" class="py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700 transition">Dashboard</a>
+        <button class="py-2 px-4 text-gray-600 rounded hover:bg-gray-200">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="bg-red-600 text-white py-8">
+    <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold mb-2">Unpaid Customers</h1>
+        <p class="text-red-100">View customers with pending payments</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto px-6 py-8">
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-md p-6 flex items-center">
+        <div class="p-3 bg-red-100 rounded-full mr-4">
+          <i class="fas fa-user-clock text-red-600 text-xl"></i>
+        </div>
+        <div>
+          <p class="text-gray-500 text-sm">Total Unpaid Customers</p>
+          <h3 class="text-2xl font-bold text-red-600">25</h3>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow-md p-6 flex items-center">
+        <div class="p-3 bg-orange-100 rounded-full mr-4">
+          <i class="fas fa-calendar-times text-orange-600 text-xl"></i>
+        </div>
+        <div>
+          <p class="text-gray-500 text-sm">Overdue Payments</p>
+          <h3 class="text-2xl font-bold text-orange-600">10</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unpaid Customers Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pending Amount</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            
+            <!-- Example Row -->
+            <tr>
+              <td class="px-6 py-4">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                    <span class="text-red-600 font-medium">RS</span>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">Rohit Sharma</div>
+                    <div class="text-sm text-gray-500">+91 9876543210</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-900">A3 Hostel, Room 210</td>
+              <td class="px-6 py-4 text-sm text-gray-900">Monthly Veg</td>
+              <td class="px-6 py-4 text-sm text-gray-900">20 Jul 2023</td>
+              <td class="px-6 py-4 text-sm font-semibold text-red-600">₹2500</td>
+              <td class="px-6 py-4 text-sm">
+                <button class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                  Send Reminder
+                </button>
+              </td>
+            </tr>
+
+            <!-- Another Row -->
+            <tr>
+              <td class="px-6 py-4">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <span class="text-yellow-600 font-medium">PK</span>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">Pooja Kapoor</div>
+                    <div class="text-sm text-gray-500">+91 8765432109</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-900">A2 Hostel, Room 105</td>
+              <td class="px-6 py-4 text-sm text-gray-900">Monthly Non-Veg</td>
+              <td class="px-6 py-4 text-sm text-gray-900">18 Jul 2023</td>
+              <td class="px-6 py-4 text-sm font-semibold text-red-600">₹3000</td>
+              <td class="px-6 py-4 text-sm">
+                <button class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                  Send Reminder
+                </button>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-8 text-center">
+      <a href="vendor-dashboard.html" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white pt-10 pb-6 mt-10">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <p class="text-gray-400">&copy; 2023 TiffinTech. All rights reserved.</p>
+    </div>
+  </footer>
+<!-- Load JavaScript Files -->
+<script src="js/config.js"></script>
+<script src="js/utils/storage.js"></script>
+<script src="js/utils/helpers.js"></script>
+<script src="js/services/auth-service.js"></script>
+<script src="js/services/vendor-service.js"></script>
+<script src="js/services/subscription-service.js"></script>
+<script src="js/services/customer-service.js"></script>
+<script src="js/services/order-service.js"></script>
+<script src="js/services/payment-service.js"></script>
+<script src="js/services/announcement-service.js"></script>
+<script src="js/services/holiday-service.js"></script>
+</body>
+</html>

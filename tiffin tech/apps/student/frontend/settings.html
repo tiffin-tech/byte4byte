@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TiffinTech - Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #f97316;
+            --secondary-dark: #ea580c;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --light-gray: #e5e7eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+        }
+        
+        /* ===== GLOBAL STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background-color: #f3f4f6;
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ===== NOTIFICATION STYLES ===== */
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 380px;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: none;
+    margin-top: 0.5rem;
+}
+
+.notification-dropdown.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.notification-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.notification-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--light-gray);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.notification-item:hover {
+    background-color: var(--light);
+}
+
+.notification-item.unread {
+    background-color: #f0f9ff;
+    border-left: 3px solid var(--primary);
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.notification-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-icon.order { background-color: #e0f2fe; color: var(--info); }
+.notification-icon.payment { background-color: #dcfce7; color: var(--success); }
+.notification-icon.subscription { background-color: #fef3c7; color: var(--warning); }
+.notification-icon.message { background-color: #e0e7ff; color: var(--primary); }
+.notification-icon.system { background-color: #f3e8ff; color: #8b5cf6; }
+.notification-icon.promotion { background-color: #ffedd5; color: var(--secondary); }
+
+.notification-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title-text {
+    font-weight: 500;
+    color: var(--dark);
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.notification-message {
+    color: var(--gray);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.notification-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--gray);
+}
+
+.notification-time {
+    font-size: 0.7rem;
+    color: var(--gray);
+}
+
+.notification-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--light-gray);
+    text-align: center;
+}
+
+.notification-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.notification-empty {
+    padding: 2rem 1.25rem;
+    text-align: center;
+    color: var(--gray);
+}
+
+.notification-empty i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+/* Badge styles */
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--danger);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* Loading state */
+.notification-loading {
+    padding: 2rem;
+    text-align: center;
+    color: var(--gray);
+}
+
+.notification-loading .spinner {
+    animation: spin 1s linear infinite;
+}
+        .container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        /* ===== HEADER STYLES ===== */
+        header {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.875rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .notification-badge {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        /* ===== BUTTON STYLES ===== */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 0.875rem;
+            font-size: 0.8125rem;
+        }
+        
+        /* ===== DASHBOARD LAYOUT ===== */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        /* ===== SIDEBAR STYLES ===== */
+        .sidebar {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--dark);
+            border-radius: 6px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: var(--light);
+            color: var(--primary);
+        }
+        
+        .sidebar-menu i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* ===== MAIN CONTENT STYLES ===== */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.875rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .section-title {
+            font-size: 1.375rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* ===== SETTINGS STYLES ===== */
+        .settings-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 1.25rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .settings-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .settings-tab {
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .settings-tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .settings-content {
+            display: none;
+        }
+        
+        .settings-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+        }
+        
+        .toggle-container:hover {
+            border-color: var(--primary);
+        }
+        
+        .toggle-label {
+            flex: 1;
+        }
+        
+        .toggle-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .toggle-description {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        .plan-card {
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .plan-card:hover {
+            border-color: var(--primary);
+        }
+        
+        .plan-card.selected {
+            border-color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+        
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .plan-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .plan-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .plan-features {
+            margin-bottom: 1rem;
+        }
+        
+        .plan-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .plan-feature i {
+            color: var(--success);
+        }
+        
+        /* ===== PAYMENT METHODS ===== */
+        .payment-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .payment-method {
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 1rem;
+            width: 200px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .payment-method:hover, .payment-method.selected {
+            border-color: var(--primary);
+        }
+        
+        .payment-method img {
+            height: 24px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .payment-method .title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .payment-method .details {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        /* ===== SECURITY DEVICES ===== */
+        .device-list {
+            margin-bottom: 1.25rem;
+        }
+        
+        .device-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+        }
+        
+        .device-item:hover {
+            border-color: var(--primary);
+        }
+        
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .device-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+        
+        .device-details .name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .device-details .info {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        /* ===== MOBILE NAVIGATION ===== */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
+            padding: 2rem;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            overflow-y: auto;
+        }
+        
+        .mobile-nav.active {
+            right: 0;
+        }
+        
+        .mobile-nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .close-nav {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .mobile-nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .mobile-nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 1.1rem;
+            display: block;
+            padding: 0.5rem 0;
+        }
+        
+        .mobile-nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .nav-links a {
+                font-size: 0.9rem;
+            }
+            
+            .dashboard {
+                grid-template-columns: 220px 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .payment-methods {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .user-profile span {
+                display: none;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .settings-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .settings-tab {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .toggle-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .payment-methods {
+                flex-direction: column;
+            }
+            
+            .payment-method {
+                width: 100%;
+            }
+            
+            .device-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .device-item .btn {
+                align-self: flex-end;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 0.75rem;
+            }
+            
+            .content-section {
+                padding: 1.25rem;
+            }
+            
+            .logo {
+                font-size: 1.25rem;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+            }
+            
+            .btn {
+                padding: 0.5rem 1rem;
+            }
+            
+            .settings-tab {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+            
+            .plan-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER SECTION ===== -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-utensils"></i>
+                    <span>Tiffin</span>Tech
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="services.html">Browse Services</a></li>
+                    <li><a href="subscribers.html">My Subscriptions</a></li>
+                    <li><a href="payments.html">Payments</a></li>
+                    <li><a href="messages.html">Messages</a></li>
+                </ul>
+                <div class="user-actions">
+                    <div class="notification-badge">
+                        <a href="notification.html"><i class="fas fa-bell"></i></a>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="avatar">RS</div>
+                        <span>Rahul S.</span>
+                    </div>
+                </div>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== MOBILE NAVIGATION ===== -->
+    <div class="overlay"></div>
+    <div class="mobile-nav">
+        <div class="mobile-nav-header">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <span>Tiffin</span>Tech
+            </div>
+            <button class="close-nav">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="mobile-nav-links">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="services.html">Browse Services</a></li>
+            <li><a href="Manage Holidays.html">Manage Holidays</a></li>
+            <li><a href="subscribers.html" class="active">My Subscriptions</a></li>
+            <li><a href="payments.html">Payment History</a></li>
+            <li><a href="messages.html">Messages</a></li>
+            <li><a href="reviews.html">My Reviews</a></li>
+            <li><a href="settings.html" class="active">Settings</a></li>
+            <li><a href="#">Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- ===== DASHBOARD SECTION ===== -->
+    <div class="container">
+        <div class="dashboard">
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="services.html"><i class="fas fa-utensils"></i> Browse Services</a></li>
+                    <li><a href="Manage Holidays.html"><i class="fas fa-calendar-alt"></i> Manage Holidays</a></li>
+                    <li><a href="subscribers.html"><i class="fas fa-calendar-alt"></i> My Subscriptions</a></li>
+                    <li><a href="payments.html"><i class="fas fa-credit-card"></i> Payment History</a></li>
+                    <li><a href="messages.html"><i class="fas fa-comment"></i> Messages</a></li>
+                    <li><a href="reviews.html"><i class="fas fa-star"></i> My Reviews</a></li>
+                    <li><a href="settings.html" class="active"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="main-content">
+                <!-- WELCOME BANNER -->
+                <div class="content-section">
+                    <h2>Account Settings</h2>
+                    <p>Manage your account preferences, privacy settings, and notification preferences.</p>
+                </div>
+
+                <!-- SETTINGS TABS -->
+                <div class="content-section">
+                    <div class="settings-tabs">
+                        <div class="settings-tab active" data-tab="profile">Profile</div>
+                        <div class="settings-tab" data-tab="notifications">Notifications</div>
+                        <div class="settings-tab" data-tab="privacy">Privacy & Security</div>
+                        <div class="settings-tab" data-tab="payment">Payment Methods</div>
+                        <div class="settings-tab" data-tab="preferences">Preferences</div>
+                    </div>
+
+                    <!-- PROFILE SETTINGS -->
+                    <div class="settings-content active" id="profile-tab">
+                        <h3 style="margin-bottom: 1.25rem;">Personal Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="profilePhoto">Profile Photo</label>
+                            <div style="display: flex; align-items: center; gap: 1.25rem;">
+                                <div class="avatar" style="width: 80px; height: 80px; font-size: 1.5rem;">RS</div>
+                                <div>
+                                    <input type="file" id="profilePhoto" accept="image/*" style="display: none;">
+                                    <button class="btn btn-sm" onclick="document.getElementById('profilePhoto').click()">
+                                        <i class="fas fa-upload"></i> Upload Photo
+                                    </button>
+                                    <p class="form-hint">Recommended: Square JPG, PNG or GIF, at least 200x200 pixels</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                            <div class="form-group">
+                                <label for="firstName">First Name</label>
+                                <input type="text" id="firstName" value="Rahul">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lastName">Last Name</label>
+                                <input type="text" id="lastName" value="Sharma">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" value="rahul.sharma@example.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" value="+91 9876543210">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="address">Delivery Address</label>
+                            <textarea id="address">B-102, Sunshine Apartments, MG Road, Bangalore - 560001</textarea>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" value="Bangalore">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="pincode">Pincode</label>
+                                <input type="text" id="pincode" value="560001">
+                            </div>
+                        </div>
+                        
+                        <button class="btn">Save Changes</button>
+                    </div>
+
+                    <!-- NOTIFICATION SETTINGS -->
+                    <div class="settings-content" id="notifications-tab">
+                        <h3 style="margin-bottom: 1.25rem;">Notification Preferences</h3>
+                        <p style="margin-bottom: 1.25rem;">Manage how you receive notifications from TiffinTech.</p>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Email Notifications</div>
+                                <div class="toggle-description">Receive order updates, promotions, and account notifications via email</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">SMS Notifications</div>
+                                <div class="toggle-description">Receive order updates and important alerts via SMS</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Push Notifications</div>
+                                <div class="toggle-description">Receive instant alerts on your device</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <h4 style="margin: 2rem 0 1rem;">Notification Types</h4>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Order Updates</div>
+                                <div class="toggle-description">Get notified about your order status, delivery updates, and changes</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Promotional Offers</div>
+                                <div class="toggle-description">Receive offers, discounts, and promotional content</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Account Alerts</div>
+                                <div class="toggle-description">Get important alerts about your account activity</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Service Updates</div>
+                                <div class="toggle-description">Receive updates from your subscribed services</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <button class="btn" style="margin-top: 1.25rem;">Save Preferences</button>
+                    </div>
+
+                    <!-- PRIVACY & SECURITY SETTINGS -->
+                    <div class="settings-content" id="privacy-tab">
+                        <h3 style="margin-bottom: 1.25rem;">Privacy & Security</h3>
+                        
+                        <h4 style="margin: 1.5rem 0 1rem;">Account Security</h4>
+                        
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword">
+                            <p class="form-hint">Use at least 8 characters with a mix of letters, numbers & symbols</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword">
+                        </div>
+                        
+                        <button class="btn">Update Password</button>
+                        
+                        <h4 style="margin: 2.5rem 0 1rem;">Two-Factor Authentication</h4>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Enable 2FA</div>
+                                <div class="toggle-description">Add an extra layer of security to your account</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <h4 style="margin: 2.5rem 0 1rem;">Active Devices</h4>
+                        
+                        <div class="device-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">
+                                        <i class="fas fa-laptop"></i>
+                                    </div>
+                                    <div class="device-details">
+                                        <div class="name">Windows Chrome</div>
+                                        <div class="info">Bangalore, India • Now active</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline">Logout</button>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                    <div class="device-details">
+                                        <div class="name">Android App</div>
+                                        <div class="info">Last active: Today, 10:23 AM</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline">Logout</button>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">
+                                        <i class="fas fa-tablet-alt"></i>
+                                    </div>
+                                    <div class="device-details">
+                                        <div class="name">iPad Safari</div>
+                                        <div class="info">Last active: 2 days ago</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline">Logout</button>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin: 2.5rem 0 1rem;">Data Privacy</h4>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Data Collection</div>
+                                <div class="toggle-description">Allow us to collect analytics data to improve our services</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Personalized Ads</div>
+                                <div class="toggle-description">See ads that are more relevant to you based on your activity</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <button class="btn" style="margin-top: 1.25rem;">Save Privacy Settings</button>
+                    </div>
+
+                    <!-- PAYMENT METHODS -->
+                    <div class="settings-content" id="payment-tab">
+                        <h3 style="margin-bottom: 1.25rem;">Payment Methods</h3>
+                        
+                        <h4 style="margin: 1.5rem 0 1rem;">Your Payment Methods</h4>
+                        
+                        <div class="payment-methods">
+                            <div class="payment-method selected">
+                                <img src="https://logo.clearbit.com/visa.com" alt="Visa">
+                                <div class="title">Visa ending in 7654</div>
+                                <div class="details">Expires 12/2024</div>
+                            </div>
+                            
+                            <div class="payment-method">
+                                <img src="https://logo.clearbit.com/mastercard.com" alt="Mastercard">
+                                <div class="title">Mastercard ending in 2398</div>
+                                <div class="details">Expires 08/2023</div>
+                            </div>
+                            
+                            <div class="payment-method">
+                                <img src="https://logo.clearbit.com/paypal.com" alt="PayPal">
+                                <div class="title">PayPal</div>
+                                <div class="details">rahul.sharma@example.com</div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-outline" style="margin-bottom: 1.875rem;">
+                            <i class="fas fa-plus"></i> Add New Payment Method
+                        </button>
+                        
+                        <h4 style="margin: 2.5rem 0 1rem;">Billing History</h4>
+                        
+                        <p>Your billing history and invoices are available in the <a href="payments.html" style="color: var(--primary);">Payments section</a>.</p>
+                        
+                        <h4 style="margin: 2.5rem 0 1rem;">Automatic Payments</h4>
+                        
+                        <div class="toggle-container">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Auto-Renew Subscriptions</div>
+                                <div class="toggle-description">Automatically charge your primary payment method for subscription renewals</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- PREFERENCES -->
+                    <div class="settings-content" id="preferences-tab">
+                        <h3 style="margin-bottom: 1.25rem;">Preferences</h3>
+                        
+                        <h4 style="margin: 1.5rem 0 1rem;">Meal Preferences</h4>
+                        
+                        <div class="form-group">
+                            <label for="dietType">Diet Type</label>
+                            <select id="dietType">
+                                <option value="vegetarian" selected>Vegetarian</option>
+                                <option value="vegan">Vegan</option>
+                                <option value="jain">Jain</option>
+                                <option value="eggitarian">Eggitarian</option>
+                                <option value="non-vegetarian">Non-Vegetarian</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="spiceLevel">Preferred Spice Level</label>
+                            <select id="spiceLevel">
+                                <option value="mild">Mild</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="spicy">Spicy</option>
+                                <option value="very-spicy">Very Spicy</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Food Allergies & Restrictions</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox"> Gluten
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox"> Dairy
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox"> Nuts
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox"> Soy
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox"> Eggs
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox"> Seafood
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin: 2.5rem 0 1rem;">Delivery Preferences</h4>
+                        
+                        <div class="form-group">
+                            <label for="deliveryInstructions">Delivery Instructions</label>
+                            <textarea id="deliveryInstructions" placeholder="Any special instructions for delivery personnel...">Please don't ring the bell, just call my phone</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="defaultDeliveryTime">Preferred Delivery Time</label>
+                            <select id="defaultDeliveryTime">
+                                <option value="12:30-13:00">12:30 PM - 1:00 PM (Lunch)</option>
+                                <option value="13:00-13:30">1:00 PM - 1:30 PM (Lunch)</option>
+                                <option value="19:30-20:00" selected>7:30 PM - 8:00 PM (Dinner)</option>
+                                <option value="20:00-20:30">8:00 PM - 8:30 PM (Dinner)</option>
+                            </select>
+                        </div>
+                        
+                        <h4 style="margin: 2.5rem 0 1rem;">Communication Preferences</h4>
+                        
+                        <div class="form-group">
+                            <label for="language">Preferred Language</label>
+                            <select id="language">
+                                <option value="english" selected>English</option>
+                                <option value="hindi">Hindi</option>
+                                <option value="kannada">Kannada</option>
+                                <option value="tamil">Tamil</option>
+                                <option value="telugu">Telugu</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn">Save Preferences</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.settings-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all tab contents
+                document.querySelectorAll('.settings-content').forEach(content => content.classList.remove('active'));
+                // Show the corresponding tab content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+        
+        // Toggle switch functionality
+        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                // In a real app, this would save the preference to the server
+                console.log(`Toggle switched: ${this.checked ? 'on' : 'off'}`);
+            });
+        });
+        
+        // Payment method selection
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', function() {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+        
+        // Plan selection
+        document.querySelectorAll('.plan-card').forEach(plan => {
+            plan.addEventListener('click', function() {
+                document.querySelectorAll('.plan-card').forEach(p => p.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+        
+        // Save button functionality
+        document.querySelectorAll('.btn').forEach(button => {
+            if (button.textContent.includes('Save')) {
+                button.addEventListener('click', function() {
+                    // In a real app, this would save the settings to the server
+                    alert('Your settings have been saved successfully!');
+                });
+            }
+        });
+        
+        // Logout device functionality
+        document.querySelectorAll('.device-item .btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const deviceName = this.closest('.device-item').querySelector('.name').textContent;
+                if (confirm(`Are you sure you want to logout from ${deviceName}?`)) {
+                    this.closest('.device-item').style.opacity = '0.5';
+                    this.disabled = true;
+                    this.textContent = 'Logged out';
+                }
+            });
+        });
+        
+        // ===== MOBILE NAVIGATION =====
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const closeNavBtn = document.querySelector('.close-nav');
+        const mobileNav = document.querySelector('.mobile-nav');
+        const overlay = document.querySelector('.overlay');
+        
+        function openMobileNav() {
+            mobileNav.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeMobileNav() {
+            mobileNav.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        mobileMenuBtn.addEventListener('click', openMobileNav);
+        closeNavBtn.addEventListener('click', closeMobileNav);
+        overlay.addEventListener('click', closeMobileNav);
+    </script>
+</body>
+</html>

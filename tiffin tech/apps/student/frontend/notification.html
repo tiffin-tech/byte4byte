@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TiffinTech - Notifications</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #f97316;
+            --secondary-dark: #ea580c;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --light-gray: #e5e7eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+        }
+        
+        /* ===== GLOBAL STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background-color: #f3f4f6;
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        /* ===== HEADER STYLES ===== */
+        header {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.875rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .notification-badge {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        /* ===== BUTTON STYLES ===== */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 0.875rem;
+            font-size: 0.8125rem;
+        }
+        
+        /* ===== MAIN CONTENT STYLES ===== */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.875rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .section-title {
+            font-size: 1.375rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* ===== NOTIFICATION CENTER STYLES ===== */
+        .notification-center {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+        
+        .notification-item {
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .notification-item:hover {
+            background-color: var(--light);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .notification-item.unread {
+            background-color: #eff6ff;
+            font-weight: 500;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--info);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .notification-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.375rem;
+            font-size: 1rem;
+        }
+        
+        .notification-message {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.375rem;
+            line-height: 1.5;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .notification-date {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        /* ===== TABS STYLES ===== */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 1.25rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* ===== EMPTY STATE STYLES ===== */
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem 1.25rem;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--light-gray);
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* ===== MOBILE NAVIGATION ===== */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
+            padding: 2rem;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            overflow-y: auto;
+        }
+        
+        .mobile-nav.active {
+            right: 0;
+        }
+        
+        .mobile-nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .close-nav {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .mobile-nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .mobile-nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 1.1rem;
+            display: block;
+            padding: 0.5rem 0;
+        }
+        
+        .mobile-nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .nav-links a {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .user-profile span {
+                display: none;
+            }
+            
+            .notification-item {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .notification-actions {
+                align-self: flex-end;
+                margin-top: 0.5rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .tabs {
+                gap: 0.5rem;
+            }
+            
+            .tab {
+                padding: 0.5rem 0.875rem;
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 0.75rem;
+            }
+            
+            .content-section {
+                padding: 1.25rem;
+            }
+            
+            .logo {
+                font-size: 1.25rem;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+            }
+            
+            .notification-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 0.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER SECTION ===== -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-utensils"></i>
+                    <span>Tiffin</span>Tech
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="subscribers.html">My Subscriptions</a></li>
+                    <li><a href="#">Payments</a></li>
+                    <li><a href="messages.html">Messages</a></li>
+                    <li><a href="#" class="active">Notifications</a></li>
+                </ul>
+                <div class="user-actions">
+                    <div class="notification-badge">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">5</span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="avatar">RS</div>
+                        <span>Rahul S.</span>
+                    </div>
+                </div>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== MOBILE NAVIGATION ===== -->
+    <div class="overlay"></div>
+    <div class="mobile-nav">
+        <div class="mobile-nav-header">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <span>Tiffin</span>Tech
+            </div>
+            <button class="close-nav">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="mobile-nav-links">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="subscribers.html">My Subscriptions</a></li>
+            <li><a href="#">Payments</a></li>
+            <li><a href="messages.html">Messages</a></li>
+            <li><a href="#" class="active">Notifications</a></li>
+        </ul>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="container">
+        <div class="main-content">
+            <!-- NOTIFICATION CENTER SECTION -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Notifications</h3>
+                    <button class="btn btn-sm" id="mark-all-read-btn">Mark All as Read</button>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="all">All</div>
+                    <div class="tab" data-tab="unread">Unread</div>
+                    <div class="tab" data-tab="orders">Orders</div>
+                    <div class="tab" data-tab="payments">Payments</div>
+                    <div class="tab" data-tab="system">System</div>
+                </div>
+                
+                <!-- All Notifications Tab -->
+                <div class="tab-content active" id="all-tab">
+                    <div class="notification-center">
+                        <div class="notification-item unread">
+                            <div class="notification-icon" style="background-color: var(--info);">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">New Message from South Delight</div>
+                                <div class="notification-message">We've added new dishes to our menu. Check them out!</div>
+                                <div class="notification-date">Today, 10:30 AM</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item unread">
+                            <div class="notification-icon" style="background-color: var(--success);">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Payment Successful</div>
+                                <div class="notification-message">Your payment of ₹2,800 to South Delight was successful.</div>
+                                <div class="notification-date">Today, 9:15 AM</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--warning);">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Subscription Renewal</div>
+                                <div class="notification-message">Your Mama's Kitchen subscription will renew in 3 days.</div>
+                                <div class="notification-date">Yesterday, 3:45 PM</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item unread">
+                            <div class="notification-icon" style="background-color: var(--info);">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">New Feature Available</div>
+                                <div class="notification-message">You can now schedule holidays for your subscriptions.</div>
+                                <div class="notification-date">Yesterday, 1:20 PM</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--secondary);">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Rate Your Experience</div>
+                                <div class="notification-message">How was your recent order from South Delight?</div>
+                                <div class="notification-date">Sep 28, 2023</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">Review</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--primary);">
+                                <i class="fas fa-shipping-fast"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Order Delivered</div>
+                                <div class="notification-message">Your order from Mama's Kitchen has been delivered.</div>
+                                <div class="notification-date">Sep 27, 2023</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--danger);">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Payment Failed</div>
+                                <div class="notification-message">Your payment of ₹2,500 to Mama's Kitchen failed. Please update your payment method.</div>
+                                <div class="notification-date">Sep 25, 2023</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">Retry</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Unread Notifications Tab -->
+                <div class="tab-content" id="unread-tab">
+                    <div class="notification-center">
+                        <div class="notification-item unread">
+                            <div class="notification-icon" style="background-color: var(--info);">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">New Message from South Delight</div>
+                                <div class="notification-message">We've added new dishes to our menu. Check them out!</div>
+                                <div class="notification-date">Today, 10:30 AM</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item unread">
+                            <div class="notification-icon" style="background-color: var(--success);">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Payment Successful</div>
+                                <div class="notification-message">Your payment of ₹2,800 to South Delight was successful.</div>
+                                <div class="notification-date">Today, 9:15 AM</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item unread">
+                            <div class="notification-icon" style="background-color: var(--info);">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">New Feature Available</div>
+                                <div class="notification-message">You can now schedule holidays for your subscriptions.</div>
+                                <div class="notification-date">Yesterday, 1:20 PM</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Notifications Tab -->
+                <div class="tab-content" id="orders-tab">
+                    <div class="notification-center">
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--primary);">
+                                <i class="fas fa-shipping-fast"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Order Delivered</div>
+                                <div class="notification-message">Your order from Mama's Kitchen has been delivered.</div>
+                                <div class="notification-date">Sep 27, 2023</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--info);">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Order Prepared</div>
+                                <div class="notification-message">Your order from South Delight is being prepared.</div>
+                                <div class="notification-date">Sep 26, 2023</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--info);">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Order Confirmed</div>
+                                <div class="notification-message">Your order from Mama's Kitchen has been confirmed.</div>
+                                <div class="notification-date">Sep 25, 2023</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payments Notifications Tab -->
+                <div class="tab-content" id="payments-tab">
+                    <div class="notification-center">
+                        <div class="notification-item unread">
+                            <div class="notification-icon" style="background-color: var(--success);">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Payment Successful</div>
+                                <div class="notification-message">Your payment of ₹2,800 to South Delight was successful.</div>
+                                <div class="notification-date">Today, 9:15 AM</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--warning);">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Subscription Renewal</div>
+                                <div class="notification-message">Your Mama's Kitchen subscription will renew in 3 days.</div>
+                                <div class="notification-date">Yesterday, 3:45 PM</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--danger);">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">Payment Failed</div>
+                                <div class="notification-message">Your payment of ₹2,500 to Mama's Kitchen failed. Please update your payment method.</div>
+                                <div class="notification-date">Sep 25, 2023</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">Retry</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System Notifications Tab -->
+                <div class="tab-content" id="system-tab">
+                    <div class="notification-center">
+                        <div class="notification-item unread">
+                            <div class="notification-icon" style="background-color: var(--info);">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">New Feature Available</div>
+                                <div class="notification-message">You can now schedule holidays for your subscriptions.</div>
+                                <div class="notification-date">Yesterday, 1:20 PM</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--info);">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">System Maintenance</div>
+                                <div class="notification-message">We'll be performing system maintenance on Sunday from 2 AM to 4 AM.</div>
+                                <div class="notification-date">Sep 20, 2023</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon" style="background-color: var(--info);">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="notification-info">
+                                <div class="notification-title">App Update Available</div>
+                                <div class="notification-message">A new version of TiffinTech is available with bug fixes and performance improvements.</div>
+                                <div class="notification-date">Sep 15, 2023</div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== TAB FUNCTIONALITY =====
+        const tabs = document.querySelectorAll('.tab');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                // Show the corresponding tab content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+
+        // ===== MARK ALL AS READ FUNCTIONALITY =====
+        const markAllReadBtn = document.getElementById('mark-all-read-btn');
+        
+        markAllReadBtn.addEventListener('click', function() {
+            const unreadNotifications = document.querySelectorAll('.notification-item.unread');
+            const badge = document.querySelector('.notification-badge .badge');
+            
+            unreadNotifications.forEach(notification => {
+                notification.classList.remove('unread');
+            });
+            
+            // Update notification count
+            badge.textContent = '0';
+            
+            alert('All notifications marked as read!');
+        });
+
+        // ===== NOTIFICATION ITEM CLICK =====
+        const notificationItems = document.querySelectorAll('.notification-item');
+        
+        notificationItems.forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.remove('unread');
+                
+                // Update notification count
+                const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+                document.querySelector('.notification-badge .badge').textContent = unreadCount;
+            });
+        });
+
+        // ===== NOTIFICATION ACTION BUTTONS =====
+        const actionButtons = document.querySelectorAll('.notification-actions .btn');
+        
+        actionButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent triggering the notification item click
+                const notification = this.closest('.notification-item');
+                const title = notification.querySelector('.notification-title').textContent;
+                
+                alert(`Action triggered for: ${title}`);
+            });
+        });
+
+        // ===== MOBILE NAVIGATION =====
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const closeNavBtn = document.querySelector('.close-nav');
+        const mobileNav = document.querySelector('.mobile-nav');
+        const overlay = document.querySelector('.overlay');
+        
+        function openMobileNav() {
+            mobileNav.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeMobileNav() {
+            mobileNav.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        mobileMenuBtn.addEventListener('click', openMobileNav);
+        closeNavBtn.addEventListener('click', closeMobileNav);
+        overlay.addEventListener('click', closeMobileNav);
+    </script>
+</body>
+</html>
