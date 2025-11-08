@@ -1,0 +1,5 @@
+# Folders to exclude from the Jekyll build
+exclude:
+  - node_modules/
+  - vendor/
+  - "tiffin tech/apps/vendor/"
